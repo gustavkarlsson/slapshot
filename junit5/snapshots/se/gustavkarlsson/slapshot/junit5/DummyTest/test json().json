@@ -1,0 +1,14 @@
+{
+    "num": 5.0,
+    "obj": {
+        "o": [
+            true,
+            "str"
+        ],
+        "b": [
+            true,
+            "sr"
+        ]
+    },
+    "newNull": null
+}

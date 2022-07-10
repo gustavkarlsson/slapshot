@@ -1,12 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
-    id("se.gustavkarlsson.slapshot") version "1.0-SNAPSHOT"
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.slapshot)
 }
 
-group = "se.gustavkarlsson.slapshot"
-version = "1.0-SNAPSHOT"
+group = extra["mavenGroup"]!!
+version = libs.versions.slapshot.get()
 
 repositories {
     mavenLocal()
@@ -15,18 +15,13 @@ repositories {
 }
 
 dependencies {
-    testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.test {
     useJUnitPlatform()
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
 slapshot {
-    logger.info("setting snapshots dir")
-    snapshotRootDir.set("snapshotts")
+    snapshotRootDir.set("snapshots")
 }

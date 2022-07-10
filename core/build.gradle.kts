@@ -1,31 +1,26 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization") version "1.7.0"
+    alias(libs.plugins.kotlin.jvm)
     `maven-publish`
 }
 
-group = "se.gustavkarlsson.slapshot"
-version = "1.0-SNAPSHOT"
+group = extra["mavenGroup"]!!
+version = libs.versions.slapshot.get()
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
-    testImplementation(kotlin("test"))
-
+    implementation(libs.kotlin.coroutines)
+    implementation(libs.kotlin.serialization.json)
+    testImplementation(libs.kotlin.test)
+    testImplementation(libs.junit.jupiter.engine)
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
 }
 
 publishing {

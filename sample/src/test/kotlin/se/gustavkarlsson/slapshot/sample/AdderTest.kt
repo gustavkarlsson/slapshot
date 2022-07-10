@@ -2,21 +2,20 @@ package se.gustavkarlsson.slapshot.sample
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import se.gustavkarlsson.slapshot.core.Slapshot
-import se.gustavkarlsson.slapshot.core.SlapshotJunitExtension
-import se.gustavkarlsson.slapshot.core.SnapshotFileResolver
-import se.gustavkarlsson.slapshot.core.typehandlers.IntSnapshot
+import se.gustavkarlsson.slapshot.core.formats.LongFormat
+import se.gustavkarlsson.slapshot.junit5.JUnit5SnapshotContext
+import se.gustavkarlsson.slapshot.junit5.SnapshotSupport
 
-@ExtendWith(SlapshotJunitExtension::class)
-class AdderTest(private val slapshot: Slapshot<Int, IntSnapshot>) {
-    init {
-        slapshot.snapshotFileResolver = SnapshotFileResolver { rootDirectory, fileExtension, testInfo ->
-            rootDirectory.resolve(testInfo.displayName + fileExtension)
-        }
-    }
-
+@ExtendWith(SnapshotSupport::class)
+class AdderTest {
     @Test
-    fun `i am a test`() {
-        slapshot.snapshot(5)
+    fun `i am a test`(snapshotContext: JUnit5SnapshotContext) {
+        val snapshotter = snapshotContext.createSnapshotter(
+            format = LongFormat(),
+            overrideSnapshotFileResolver = { rootDirectory, testInfo, fileExtension ->
+                rootDirectory.resolve(testInfo.displayName + '.' + fileExtension)
+            },
+        )
+        snapshotter.snapshot(5)
     }
 }
