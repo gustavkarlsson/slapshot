@@ -22,7 +22,7 @@ fun getDefaultRootDirectory(): Path {
 fun getAction(): SnapshotAction {
     val actionString = System.getProperty("snapshotAction")
     return when (actionString?.lowercase()) {
-        null -> SnapshotAction.CompareOnly
+        null -> SnapshotAction.CompareAndAdd
         "compareOnly" -> SnapshotAction.CompareOnly
         "compareAndAdd" -> SnapshotAction.CompareAndAdd
         "overwrite" -> SnapshotAction.Overwrite

@@ -19,11 +19,11 @@ private const val EXTENSION_NAME = "slapshot"
 private const val DEFAULT_SNAPSHOT_ROOT_DIR_NAME = "snapshots"
 private const val PROPERTY_KEY_ROOT_DIR = "snapshotRootDir"
 private const val PROPERTY_KEY_ACTION = "snapshotAction"
-private const val ACTION_KEY_COMPARE_ONLY = "compareOnly"
-private const val ACTION_KEY_COMPARE_AND_ADD = "compareAndAdd"
-private const val ACTION_KEY_OVERWRITE = "overwrite"
+private const val ACTION_VALUE_COMPARE_ONLY = "compareOnly"
+private const val ACTION_VALUE_COMPARE_AND_ADD = "compareAndAdd"
+private const val ACTION_VALUE_OVERWRITE = "overwrite"
 
-// FIXME caching?
+@Suppress("unused")
 class SlapshotPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.createExtension()
@@ -44,7 +44,7 @@ class SlapshotPlugin : Plugin<Project> {
                 logger.info("Setting $PROPERTY_KEY_ROOT_DIR system property to $snapshotRootDir")
                 systemProperty(PROPERTY_KEY_ROOT_DIR, snapshotRootDir)
                 logger.info("Setting $PROPERTY_KEY_ACTION system property to $snapshotAction")
-                systemProperty(PROPERTY_KEY_ACTION, snapshotAction)
+                systemProperty(PROPERTY_KEY_ACTION, snapshotAction.systemProperty)
             }
         }
     }
@@ -62,7 +62,7 @@ private fun Project.createExtension(): SlapshotPluginExtension {
 private fun Project.addDependencies() {
     val dependencies = tasks.withType<Test>()
         .flatMap { task -> getRequiredDependencies(task) }
-        .toSet()
+        .distinct()
     for (dependency in dependencies) {
         addDependency("testImplementation", dependency)
     }
@@ -134,17 +134,17 @@ private fun getSnapshotRootDir(project: Project, extension: SlapshotPluginExtens
     return extension.snapshotRootDir.get().toString()
 }
 
-private fun getSnapshotAction(project: Project, extension: SlapshotPluginExtension): String {
+private fun getSnapshotAction(project: Project, extension: SlapshotPluginExtension): SnapshotAction {
     val propertySnapshotAction = when (project.findProperty(PROPERTY_KEY_ACTION)) {
-        ACTION_KEY_COMPARE_ONLY -> SnapshotAction.CompareOnly
-        ACTION_KEY_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
-        ACTION_KEY_OVERWRITE -> SnapshotAction.Overwrite
+        ACTION_VALUE_COMPARE_ONLY -> SnapshotAction.CompareOnly
+        ACTION_VALUE_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
+        ACTION_VALUE_OVERWRITE -> SnapshotAction.Overwrite
         else -> null
     }
     if (propertySnapshotAction != null) {
         project.logger.debug("Using $PROPERTY_KEY_ACTION from project properties")
-        return propertySnapshotAction.systemProperty
+        return propertySnapshotAction
     }
     project.logger.debug("Using $PROPERTY_KEY_ACTION from extension")
-    return extension.snapshotSnapshotAction.get().systemProperty
+    return extension.snapshotSnapshotAction.get()
 }
