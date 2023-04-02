@@ -1,6 +1,5 @@
 package se.gustavkarlsson.slapshot.junit4
 
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import se.gustavkarlsson.slapshot.core.formats.*
