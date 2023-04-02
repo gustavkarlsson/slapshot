@@ -54,8 +54,8 @@ private fun Project.createExtension(): SlapshotPluginExtension {
     return extensions.create<SlapshotPluginExtension>(EXTENSION_NAME).apply {
         val defaultSnapshotRootDir = getDefaultSnapshotRootDir()
         logger.info("Setting default snapshot root dir to $defaultSnapshotRootDir")
-        snapshotRootDir.set(defaultSnapshotRootDir)
-        snapshotSnapshotAction.set(SnapshotAction.CompareAndAdd)
+        snapshotRootDir.convention(defaultSnapshotRootDir)
+        snapshotSnapshotAction.convention(SnapshotAction.CompareAndAdd)
     }
 }
 
