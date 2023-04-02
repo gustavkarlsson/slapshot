@@ -2,6 +2,7 @@ package se.gustavkarlsson.slapshot.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
@@ -26,13 +27,13 @@ class SlapshotPlugin : Plugin<Project> {
             val snapshotRootDir = getSnapshotRootDir(project, extension)
             val snapshotAction = getSnapshotAction(project, extension)
             clearSnapshotsTask.configure {
-                this.snapshotRootDir = snapshotRootDir
+                delete(snapshotRootDir)
             }
             tasks.withType<Test> {
                 mustRunAfter(clearSnapshotsTask) // Only applicable if clearSnapshots DOES run
-                inputs.dir(snapshotRootDir) // Dir content
-                inputs.property(PROPERTY_KEY_ROOT_DIR, snapshotRootDir) // Dir path
+                inputs.files(fileTree(snapshotRootDir))
                 inputs.property(PROPERTY_KEY_ACTION, snapshotAction)
+                outputs.files(fileTree(snapshotRootDir))
 
                 logger.info("Setting $PROPERTY_KEY_ROOT_DIR system property to $snapshotRootDir")
                 systemProperty(PROPERTY_KEY_ROOT_DIR, snapshotRootDir)
@@ -58,10 +59,10 @@ private fun Project.addDependencies(extension: SlapshotPluginExtension) {
     dependencies {
         add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
         val variant = extension.testFramework.map { testFramework ->
+            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (testFramework) {
                 TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
                 TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
-                null -> error("Test framework may not be null")
             }
         }
         addProvider("testImplementation", variant)
@@ -91,18 +92,28 @@ private fun Project.getDefaultSnapshotRootDir(): File {
     return testSourcesDir.resolve(DEFAULT_SNAPSHOT_ROOT_DIR_NAME)
 }
 
-private fun Project.createClearSnapshotsTask(): TaskProvider<ClearSnapshotsTask> {
-    return tasks.register<ClearSnapshotsTask>(ClearSnapshotsTask.name)
+private fun Project.createClearSnapshotsTask(): TaskProvider<Delete> {
+    return tasks.register<Delete>("clearSnapshots") {
+        group = "verification"
+        description = "Deletes all existing snapshots from the project"
+    }
 }
 
-private fun getSnapshotRootDir(project: Project, extension: SlapshotPluginExtension): String {
+private fun getSnapshotRootDir(project: Project, extension: SlapshotPluginExtension): File {
     val property = project.findProperty(PROPERTY_KEY_ROOT_DIR)?.toString()
-    if (property != null) {
+    val dir = if (property != null) {
         project.logger.debug("Using $PROPERTY_KEY_ROOT_DIR from project properties")
-        return property
+        File(property)
+    } else {
+        project.logger.debug("Using $PROPERTY_KEY_ROOT_DIR from extension")
+        File(extension.snapshotRootDir.get().toString())
     }
-    project.logger.debug("Using $PROPERTY_KEY_ROOT_DIR from extension")
-    return extension.snapshotRootDir.get().toString()
+    // FIXME seems necessary because working dir differs between gradle tasks and test runs but is it a good idea?
+    return if (dir.isAbsolute) {
+        dir
+    } else {
+        project.projectDir.resolve(dir)
+    }
 }
 
 private fun getSnapshotAction(project: Project, extension: SlapshotPluginExtension): SnapshotAction {
