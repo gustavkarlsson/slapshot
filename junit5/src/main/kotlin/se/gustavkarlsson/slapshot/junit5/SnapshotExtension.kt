@@ -6,19 +6,26 @@ import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import se.gustavkarlsson.slapshot.core.SnapshotContext
 import java.lang.reflect.Method
+import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
-import java.util.Optional
+import java.util.*
 
-class SnapshotSupport : ParameterResolver {
+class SnapshotExtension : ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
-        if (parameterContext.parameter.type == JUnit5SnapshotContext::class.java) {
-            return true
-        } else {
-            val type = parameterContext.parameter.parameterizedType as? ParameterizedType
-            if (type?.rawType != SnapshotContext::class.java) return false
-            if (type.actualTypeArguments.first() != TestInfo::class.java) return false
-            return true
+        return when {
+            isJUnit5SnapshotContext(parameterContext.parameter) -> true
+            isValidSnapshotContext(parameterContext.parameter) -> true
+            else -> false
         }
+    }
+
+    private fun isJUnit5SnapshotContext(parameter: Parameter): Boolean {
+        return parameter.type == JUnit5SnapshotContext::class.java
+    }
+
+    private fun isValidSnapshotContext(parameter: Parameter): Boolean {
+        val type = parameter.parameterizedType as? ParameterizedType ?: return false
+        return type.rawType == SnapshotContext::class.java && type.actualTypeArguments.first() != TestInfo::class.java
     }
 
     override fun resolveParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Any {

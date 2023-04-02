@@ -6,12 +6,6 @@ plugins {
 group = extra["mavenGroup"]!!
 version = libs.versions.slapshot.get()
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    gradlePluginPortal()
-}
-
 dependencies {
     testImplementation(libs.kotlin.test)
 }

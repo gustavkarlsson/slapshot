@@ -16,6 +16,6 @@ subprojects {
     }
 }
 
-tasks.register<Delete>("clean").configure {
+tasks.register<Delete>("clean") {
     delete(rootProject.buildDir)
 }

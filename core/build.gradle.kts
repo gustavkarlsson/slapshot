@@ -6,10 +6,6 @@ plugins {
 group = extra["mavenGroup"]!!
 version = libs.versions.slapshot.get()
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(libs.kotlin.coroutines)
     implementation(libs.kotlin.serialization.json)

@@ -7,7 +7,7 @@ import se.gustavkarlsson.slapshot.core.formats.*
 import javax.imageio.ImageIO
 
 // FIXME test parameterized tests
-@ExtendWith(SnapshotSupport::class)
+@ExtendWith(SnapshotExtension::class)
 class DummyTest {
     private lateinit var snapshotContext: JUnit5SnapshotContext
 
@@ -83,7 +83,7 @@ class DummyTest {
         snapshotContext.createSnapshotter(ImageFormat(tolerance = 0.02)).snapshot(image)
     }
 
-    @ExtendWith(SnapshotSupport::class)
+    @ExtendWith(SnapshotExtension::class)
     class NestedTest {
         private lateinit var snapshotContext: JUnit5SnapshotContext
 

@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import se.gustavkarlsson.slapshot.core.formats.LongFormat
 import se.gustavkarlsson.slapshot.junit5.JUnit5SnapshotContext
-import se.gustavkarlsson.slapshot.junit5.SnapshotSupport
+import se.gustavkarlsson.slapshot.junit5.SnapshotExtension
 
-@ExtendWith(SnapshotSupport::class)
+@ExtendWith(SnapshotExtension::class)
 class AdderTest {
     @Test
     fun `i am a test`(snapshotContext: JUnit5SnapshotContext) {

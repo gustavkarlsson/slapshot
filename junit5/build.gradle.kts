@@ -8,10 +8,6 @@ plugins {
 group = extra["mavenGroup"]!!
 version = libs.versions.slapshot.get()
 
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":core"))
     implementation(libs.junit.jupiter.engine)
