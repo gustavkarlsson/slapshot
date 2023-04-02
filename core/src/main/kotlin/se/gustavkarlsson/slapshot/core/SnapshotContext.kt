@@ -20,8 +20,7 @@ fun getDefaultRootDirectory(): Path {
 
 @InternalSlapshotApi
 fun getAction(): SnapshotAction {
-    val actionString = System.getProperty("snapshotAction")
-    return when (actionString?.lowercase()) {
+    return when (val actionString = System.getProperty("snapshotAction")) {
         null -> SnapshotAction.CompareAndAdd
         "compareOnly" -> SnapshotAction.CompareOnly
         "compareAndAdd" -> SnapshotAction.CompareAndAdd

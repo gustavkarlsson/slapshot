@@ -2,17 +2,10 @@ package se.gustavkarlsson.slapshot.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.DependencyResolutionListener
-import org.gradle.api.artifacts.ResolvableDependencies
-import org.gradle.api.internal.tasks.testing.junit.JUnitTestFramework
-import org.gradle.api.internal.tasks.testing.junitplatform.JUnitPlatformTestFramework
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.register
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.*
 import java.io.File
 
 private const val EXTENSION_NAME = "slapshot"
@@ -27,7 +20,7 @@ private const val ACTION_VALUE_OVERWRITE = "overwrite"
 class SlapshotPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.createExtension()
-        project.addDependencies()
+        project.addDependencies(extension)
         val clearSnapshotsTask = project.createClearSnapshotsTask()
         project.afterEvaluate {
             val snapshotRootDir = getSnapshotRootDir(project, extension)
@@ -54,34 +47,24 @@ private fun Project.createExtension(): SlapshotPluginExtension {
     return extensions.create<SlapshotPluginExtension>(EXTENSION_NAME).apply {
         val defaultSnapshotRootDir = getDefaultSnapshotRootDir()
         logger.info("Setting default snapshot root dir to $defaultSnapshotRootDir")
+        testFramework.convention(TestFramework.JUnit5)
         snapshotRootDir.convention(defaultSnapshotRootDir)
         snapshotSnapshotAction.convention(SnapshotAction.CompareAndAdd)
     }
 }
 
-private fun Project.addDependencies() {
-    val dependencies = tasks.withType<Test>()
-        .flatMap { task -> getRequiredDependencies(task) }
-        .distinct()
-    for (dependency in dependencies) {
-        addDependency("testImplementation", dependency)
-    }
-}
-
-// FIXME dependency versions
-private fun getRequiredDependencies(task: Test): List<String> {
-    return when (task.testFramework) {
-        is JUnitTestFramework -> listOf(
-            "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT",
-            "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT",
-        )
-
-        is JUnitPlatformTestFramework -> listOf(
-            "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT",
-            "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT",
-        )
-
-        else -> emptyList() // FIXME warn?
+// FIXME correct versions
+private fun Project.addDependencies(extension: SlapshotPluginExtension) {
+    dependencies {
+        add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
+        val variant = extension.testFramework.map { testFramework ->
+            when (testFramework) {
+                TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
+                TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
+                null -> error("Test framework may not be null")
+            }
+        }
+        addProvider("testImplementation", variant)
     }
 }
 
@@ -106,18 +89,6 @@ private fun Project.getDefaultSnapshotRootDir(): File {
         return fallbackDir
     }
     return testSourcesDir.resolve(DEFAULT_SNAPSHOT_ROOT_DIR_NAME)
-}
-
-private fun Project.addDependency(configuration: String, dependencyNotation: String) {
-    gradle.addListener(object : DependencyResolutionListener {
-        override fun beforeResolve(dependencies: ResolvableDependencies) {
-            val dependency = project.dependencies.create(dependencyNotation)
-            project.dependencies.add(configuration, dependency)
-            project.gradle.removeListener(this)
-        }
-
-        override fun afterResolve(dependencies: ResolvableDependencies) {}
-    })
 }
 
 private fun Project.createClearSnapshotsTask(): TaskProvider<ClearSnapshotsTask> {
