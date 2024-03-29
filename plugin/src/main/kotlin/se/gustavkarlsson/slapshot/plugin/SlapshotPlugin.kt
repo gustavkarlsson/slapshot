@@ -2,6 +2,7 @@ package se.gustavkarlsson.slapshot.plugin
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
@@ -20,25 +21,10 @@ private const val ACTION_VALUE_OVERWRITE = "overwrite"
 public class SlapshotPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.createExtension()
-        project.addDependencies(extension)
+        project.addDependencies(extension.testFramework)
         val clearSnapshotsTask = project.createClearSnapshotsTask()
         project.afterEvaluate {
-            val snapshotRootDir = getSnapshotRootDir(project, extension)
-            val defaultAction = getDefaultAction(project, extension)
-            clearSnapshotsTask.configure {
-                delete(snapshotRootDir)
-            }
-            tasks.withType<Test> {
-                mustRunAfter(clearSnapshotsTask) // Only applicable if clearSnapshots DOES run
-                inputs.files(fileTree(snapshotRootDir))
-                inputs.property(PROPERTY_KEY_DEFAULT_ACTION, defaultAction)
-                outputs.files(fileTree(snapshotRootDir))
-
-                logger.info("Setting $PROPERTY_KEY_SNAPSHOT_ROOT_DIR system property to $snapshotRootDir")
-                systemProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR, snapshotRootDir)
-                logger.info("Setting $PROPERTY_KEY_DEFAULT_ACTION system property to $defaultAction")
-                systemProperty(PROPERTY_KEY_DEFAULT_ACTION, defaultAction.systemProperty)
-            }
+            configure(extension, clearSnapshotsTask)
         }
     }
 }
@@ -50,21 +36,6 @@ private fun Project.createExtension(): SlapshotPluginExtension {
         testFramework.convention(TestFramework.JUnit5)
         snapshotRootDir.convention(defaultSnapshotRootDir)
         defaultAction.convention(SnapshotAction.CompareAndAdd)
-    }
-}
-
-// FIXME correct versions
-private fun Project.addDependencies(extension: SlapshotPluginExtension) {
-    dependencies {
-        add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
-        val testFrameworkDependency = extension.testFramework.map { testFramework ->
-            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-            when (testFramework) {
-                TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
-                TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
-            }
-        }
-        addProvider("testImplementation", testFrameworkDependency)
     }
 }
 
@@ -91,6 +62,23 @@ private fun Project.getDefaultSnapshotRootDir(): File {
     return testSourcesDir.resolve(DEFAULT_SNAPSHOT_ROOT_DIR_NAME)
 }
 
+// FIXME set correct versions
+private fun Project.addDependencies(testFramework: Property<TestFramework>) {
+    dependencies {
+        add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
+
+        // Add this lazily, so the framework can be overridden before the dependency is added.
+        val testFrameworkDependency = testFramework.map { testFramework ->
+            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+            when (testFramework) {
+                TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
+                TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
+            }
+        }
+        addProvider("testImplementation", testFrameworkDependency)
+    }
+}
+
 private fun Project.createClearSnapshotsTask(): TaskProvider<Delete> {
     return tasks.register<Delete>("clearSnapshots") {
         group = "verification"
@@ -98,34 +86,57 @@ private fun Project.createClearSnapshotsTask(): TaskProvider<Delete> {
     }
 }
 
-private fun getSnapshotRootDir(project: Project, extension: SlapshotPluginExtension): File {
-    val property = project.findProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR)?.toString()
+// TODO Can we check the dependencies for junit 4/5 and set the correct TestFramework?
+private fun Project.configure(
+    extension: SlapshotPluginExtension,
+    clearSnapshotsTask: TaskProvider<Delete>
+) {
+    val snapshotRootDir = getSnapshotRootDir(extension)
+    val defaultAction = getDefaultAction(extension)
+    clearSnapshotsTask.configure {
+        delete(snapshotRootDir)
+    }
+    tasks.withType<Test> {
+        mustRunAfter(clearSnapshotsTask) // Only applicable if clearSnapshots DOES run
+        inputs.files(fileTree(snapshotRootDir))
+        inputs.property(PROPERTY_KEY_DEFAULT_ACTION, defaultAction)
+        outputs.files(fileTree(snapshotRootDir))
+
+        logger.info("Setting $PROPERTY_KEY_SNAPSHOT_ROOT_DIR system property to $snapshotRootDir")
+        systemProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR, snapshotRootDir)
+        logger.info("Setting $PROPERTY_KEY_DEFAULT_ACTION system property to $defaultAction")
+        systemProperty(PROPERTY_KEY_DEFAULT_ACTION, defaultAction.systemProperty)
+    }
+}
+
+private fun Project.getSnapshotRootDir(extension: SlapshotPluginExtension): File {
+    val property = findProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR)?.toString()
     val dir = if (property != null) {
-        project.logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from project properties")
+        logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from project properties")
         File(property)
     } else {
-        project.logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from extension")
+        logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from extension")
         File(extension.snapshotRootDir.get().toString())
     }
     // FIXME seems necessary because working dir differs between gradle tasks and test runs but is it a good idea?
     return if (dir.isAbsolute) {
         dir
     } else {
-        project.projectDir.resolve(dir)
+        projectDir.resolve(dir)
     }
 }
 
-private fun getDefaultAction(project: Project, extension: SlapshotPluginExtension): SnapshotAction {
-    val property = when (project.findProperty(PROPERTY_KEY_DEFAULT_ACTION)) {
+private fun Project.getDefaultAction(extension: SlapshotPluginExtension): SnapshotAction {
+    val property = when (findProperty(PROPERTY_KEY_DEFAULT_ACTION)) {
         ACTION_VALUE_COMPARE_ONLY -> SnapshotAction.CompareOnly
         ACTION_VALUE_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
         ACTION_VALUE_OVERWRITE -> SnapshotAction.Overwrite
         else -> null
     }
     if (property != null) {
-        project.logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from project properties")
+        logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from project properties")
         return property
     }
-    project.logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from extension")
+    logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from extension")
     return extension.defaultAction.get()
 }
