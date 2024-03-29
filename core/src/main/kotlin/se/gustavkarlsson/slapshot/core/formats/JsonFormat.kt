@@ -11,7 +11,6 @@ private val json by lazy {
     }
 }
 
-// TODO Add tests
 data class JsonFormat(
     val allowAddedKeys: Boolean = false,
     val explicitNulls: Boolean = true,
