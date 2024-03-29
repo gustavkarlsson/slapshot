@@ -57,14 +57,14 @@ private fun Project.createExtension(): SlapshotPluginExtension {
 private fun Project.addDependencies(extension: SlapshotPluginExtension) {
     dependencies {
         add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
-        val variant = extension.testFramework.map { testFramework ->
+        val testFrameworkDependency = extension.testFramework.map { testFramework ->
             @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
             when (testFramework) {
                 TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
                 TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
             }
         }
-        addProvider("testImplementation", variant)
+        addProvider("testImplementation", testFrameworkDependency)
     }
 }
 
