@@ -11,13 +11,12 @@ import java.io.File
 
 private const val EXTENSION_NAME = "slapshot"
 private const val DEFAULT_SNAPSHOT_ROOT_DIR_NAME = "snapshots"
-private const val PROPERTY_KEY_ROOT_DIR = "snapshotRootDir"
-private const val PROPERTY_KEY_ACTION = "snapshotAction"
+private const val PROPERTY_KEY_SNAPSHOT_ROOT_DIR = "snapshotRootDir"
+private const val PROPERTY_KEY_DEFAULT_ACTION = "defaultAction"
 private const val ACTION_VALUE_COMPARE_ONLY = "compareOnly"
 private const val ACTION_VALUE_COMPARE_AND_ADD = "compareAndAdd"
 private const val ACTION_VALUE_OVERWRITE = "overwrite"
 
-@Suppress("unused")
 public class SlapshotPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.createExtension()
@@ -25,20 +24,20 @@ public class SlapshotPlugin : Plugin<Project> {
         val clearSnapshotsTask = project.createClearSnapshotsTask()
         project.afterEvaluate {
             val snapshotRootDir = getSnapshotRootDir(project, extension)
-            val snapshotAction = getSnapshotAction(project, extension)
+            val defaultAction = getDefaultAction(project, extension)
             clearSnapshotsTask.configure {
                 delete(snapshotRootDir)
             }
             tasks.withType<Test> {
                 mustRunAfter(clearSnapshotsTask) // Only applicable if clearSnapshots DOES run
                 inputs.files(fileTree(snapshotRootDir))
-                inputs.property(PROPERTY_KEY_ACTION, snapshotAction)
+                inputs.property(PROPERTY_KEY_DEFAULT_ACTION, defaultAction)
                 outputs.files(fileTree(snapshotRootDir))
 
-                logger.info("Setting $PROPERTY_KEY_ROOT_DIR system property to $snapshotRootDir")
-                systemProperty(PROPERTY_KEY_ROOT_DIR, snapshotRootDir)
-                logger.info("Setting $PROPERTY_KEY_ACTION system property to $snapshotAction")
-                systemProperty(PROPERTY_KEY_ACTION, snapshotAction.systemProperty)
+                logger.info("Setting $PROPERTY_KEY_SNAPSHOT_ROOT_DIR system property to $snapshotRootDir")
+                systemProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR, snapshotRootDir)
+                logger.info("Setting $PROPERTY_KEY_DEFAULT_ACTION system property to $defaultAction")
+                systemProperty(PROPERTY_KEY_DEFAULT_ACTION, defaultAction.systemProperty)
             }
         }
     }
@@ -100,12 +99,12 @@ private fun Project.createClearSnapshotsTask(): TaskProvider<Delete> {
 }
 
 private fun getSnapshotRootDir(project: Project, extension: SlapshotPluginExtension): File {
-    val property = project.findProperty(PROPERTY_KEY_ROOT_DIR)?.toString()
+    val property = project.findProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR)?.toString()
     val dir = if (property != null) {
-        project.logger.debug("Using $PROPERTY_KEY_ROOT_DIR from project properties")
+        project.logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from project properties")
         File(property)
     } else {
-        project.logger.debug("Using $PROPERTY_KEY_ROOT_DIR from extension")
+        project.logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from extension")
         File(extension.snapshotRootDir.get().toString())
     }
     // FIXME seems necessary because working dir differs between gradle tasks and test runs but is it a good idea?
@@ -116,17 +115,17 @@ private fun getSnapshotRootDir(project: Project, extension: SlapshotPluginExtens
     }
 }
 
-private fun getSnapshotAction(project: Project, extension: SlapshotPluginExtension): SnapshotAction {
-    val propertySnapshotAction = when (project.findProperty(PROPERTY_KEY_ACTION)) {
+private fun getDefaultAction(project: Project, extension: SlapshotPluginExtension): SnapshotAction {
+    val property = when (project.findProperty(PROPERTY_KEY_DEFAULT_ACTION)) {
         ACTION_VALUE_COMPARE_ONLY -> SnapshotAction.CompareOnly
         ACTION_VALUE_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
         ACTION_VALUE_OVERWRITE -> SnapshotAction.Overwrite
         else -> null
     }
-    if (propertySnapshotAction != null) {
-        project.logger.debug("Using $PROPERTY_KEY_ACTION from project properties")
-        return propertySnapshotAction
+    if (property != null) {
+        project.logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from project properties")
+        return property
     }
-    project.logger.debug("Using $PROPERTY_KEY_ACTION from extension")
+    project.logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from extension")
     return extension.defaultAction.get()
 }
