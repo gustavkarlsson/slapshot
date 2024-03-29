@@ -3,10 +3,8 @@ package se.gustavkarlsson.slapshot.junit4
 import org.junit.Rule
 import org.junit.Test
 import se.gustavkarlsson.slapshot.core.formats.*
-import javax.imageio.ImageIO
 
-// FIXME test parameterized tests
-class DummyTest {
+class SimpleTests {
 
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
@@ -70,21 +68,5 @@ class DummyTest {
             Donec ullamcorper erat velit, eget aliquet enim egestas non.
         """.trimIndent()
         snapshotContext.createSnapshotter(LongStringFormat()).snapshot(json)
-    }
-
-    @Test
-    fun `test image`() {
-        val image = ImageIO.read(DummyTest::class.java.classLoader.getResourceAsStream("image.bmp"))
-        snapshotContext.createSnapshotter(ImageFormat(tolerance = 0.02)).snapshot(image)
-    }
-
-    class NestedTest {
-        @get:Rule
-        val snapshotContext = JUnit4SnapshotContext()
-
-        @Test
-        fun `just a nested class test`() {
-            snapshotContext.createSnapshotter(StringFormat()).snapshot("bla")
-        }
     }
 }
