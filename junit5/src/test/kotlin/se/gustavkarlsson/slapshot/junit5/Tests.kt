@@ -1,14 +1,17 @@
 package se.gustavkarlsson.slapshot.junit5
 
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import se.gustavkarlsson.slapshot.core.formats.*
 import javax.imageio.ImageIO
 
-// FIXME test parameterized tests
 @ExtendWith(SnapshotExtension::class)
-class DummyTest {
+class Tests {
     private lateinit var snapshotContext: JUnit5SnapshotContext
 
     @BeforeEach
@@ -79,12 +82,19 @@ class DummyTest {
 
     @Test
     fun `test image`() {
-        val image = ImageIO.read(DummyTest::class.java.classLoader.getResourceAsStream("image.bmp"))
+        val image = ImageIO.read(Tests::class.java.classLoader.getResourceAsStream("image.bmp"))
         snapshotContext.createSnapshotter(ImageFormat(tolerance = 0.02)).snapshot(image)
     }
 
+    @ParameterizedTest(name = "parameterized {0}")
+    @ValueSource(longs = [1L, 2L])
+    fun parameterized(value: Long) {
+        snapshotContext.createSnapshotter(LongFormat()).snapshot(value)
+    }
+
+    @Nested
     @ExtendWith(SnapshotExtension::class)
-    class NestedTest {
+    inner class NestedTest {
         private lateinit var snapshotContext: JUnit5SnapshotContext
 
         @BeforeEach
