@@ -15,5 +15,5 @@ tasks.test {
 }
 
 slapshot {
-    snapshotRootDir.set("snapshots")
+    snapshotRootDir.set(project.layout.projectDirectory.dir("snapshots"))
 }

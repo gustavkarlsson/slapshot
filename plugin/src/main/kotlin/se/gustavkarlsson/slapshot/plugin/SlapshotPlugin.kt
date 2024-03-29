@@ -111,18 +111,12 @@ private fun Project.configure(
 
 private fun Project.getSnapshotRootDir(extension: SlapshotPluginExtension): File {
     val property = findProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR)?.toString()
-    val dir = if (property != null) {
+    return if (property != null) {
         logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from project properties")
         File(property)
     } else {
         logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from extension")
         File(extension.snapshotRootDir.get().toString())
-    }
-    // FIXME seems necessary because working dir differs between gradle tasks and test runs but is it a good idea?
-    return if (dir.isAbsolute) {
-        dir
-    } else {
-        projectDir.resolve(dir)
     }
 }
 
