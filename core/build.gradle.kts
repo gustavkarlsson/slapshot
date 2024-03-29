@@ -9,8 +9,8 @@ version = libs.versions.slapshot.get()
 dependencies {
     implementation(libs.kotlin.coroutines)
     implementation(libs.kotlin.serialization.json)
-    testImplementation(libs.kotlin.test)
     testImplementation(libs.junit.jupiter.engine)
+    testImplementation(libs.strikt)
 }
 
 tasks.test {

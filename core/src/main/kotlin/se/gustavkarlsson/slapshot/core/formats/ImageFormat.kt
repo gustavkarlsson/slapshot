@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicLong
 import javax.imageio.ImageIO
 import kotlin.math.abs
 
+// TODO Add tests
 data class ImageFormat(
     val tolerance: Double = 0.0,
     override val fileExtension: String = "bmp",

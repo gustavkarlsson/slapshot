@@ -11,6 +11,7 @@ private val json by lazy {
     }
 }
 
+// TODO Add tests
 data class JsonFormat(
     val allowAddedKeys: Boolean = false,
     val explicitNulls: Boolean = true,
@@ -42,8 +43,8 @@ data class JsonFormat(
     }
 
     private fun diffType(path: JsonPath, expected: JsonElement, actual: JsonElement): String? {
-        val expectedType = expected.typeString()
-        val actualType = actual.typeString()
+        val expectedType = expected.typeName()
+        val actualType = actual.typeName()
         return if (expectedType != actualType) {
             "Expected $path to be a <$expectedType> but it was a <$actualType>"
         } else {
@@ -51,7 +52,7 @@ data class JsonFormat(
         }
     }
 
-    private fun JsonElement.typeString(): String {
+    private fun JsonElement.typeName(): String {
         return when (this) {
             is JsonObject -> "object"
             is JsonArray -> "array"
@@ -88,6 +89,7 @@ data class JsonFormat(
         val expectedKeys = if (explicitNulls) {
             expected.keys
         } else {
+            // Only expect keys where the value is not null
             expected.filterValues { it !is JsonNull }.keys
         }
         val missingKeys = expectedKeys - actual.keys
@@ -98,12 +100,7 @@ data class JsonFormat(
     }
 
     private fun diffAddedKeys(path: JsonPath, expected: JsonObject, actual: JsonObject): List<String> {
-        val actualKeys = if (explicitNulls) {
-            actual.keys
-        } else {
-            actual.filterValues { it !is JsonNull }.keys
-        }
-        val addedKeys = actualKeys - expected.keys
+        val addedKeys = actual.keys - expected.keys
         return addedKeys.map { key ->
             val keyPath = path.addKey(key)
             "Unexpected element at $keyPath"
@@ -119,16 +116,16 @@ data class JsonFormat(
     }
 
     private fun diffArray(path: JsonPath, expected: JsonArray, actual: JsonArray): List<String> {
+        val contentDiffs = expected.zip(actual).flatMapIndexed { index, (expectedElement, actualElement) ->
+            val indexPath = path.addIndex(index)
+            diffElement(indexPath, expectedElement, actualElement)
+        }
         val sizeDiff = buildList {
             if (expected.size != actual.size) {
                 add("Expected $path to have a length of <${expected.size}> but it had a length of <${actual.size}>")
             }
         }
-        val contentDiffs = expected.zip(actual).flatMapIndexed { index, (expectedElement, actualElement) ->
-            val indexPath = path.addIndex(index)
-            diffElement(indexPath, expectedElement, actualElement)
-        }
-        return sizeDiff + contentDiffs
+        return contentDiffs + sizeDiff
     }
 
     override fun deserialize(bytes: ByteArray): String {

@@ -6,7 +6,9 @@ data class LongFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Long> {
     override fun deserialize(bytes: ByteArray): Long {
-        return bytes.decodeToString().toLong()
+        return bytes.decodeToString()
+            .trim()
+            .toLong()
     }
 
     override fun serialize(value: Long): ByteArray {

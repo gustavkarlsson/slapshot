@@ -23,7 +23,9 @@ data class DoubleFormat(
     }
 
     override fun deserialize(bytes: ByteArray): Double {
-        return bytes.decodeToString().toDouble()
+        return bytes.decodeToString()
+            .trim()
+            .toDouble()
     }
 
     override fun serialize(value: Double): ByteArray {
