@@ -3,7 +3,7 @@ package se.gustavkarlsson.slapshot.core.formats
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 import kotlin.math.abs
 
-data class DoubleFormat(
+public data class DoubleFormat(
     val tolerance: Double = 0.0,
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Double> {

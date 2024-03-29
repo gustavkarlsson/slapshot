@@ -3,7 +3,7 @@ package se.gustavkarlsson.slapshot.core.formats
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 import java.nio.charset.Charset
 
-data class StringFormat(
+public data class StringFormat(
     val trim: Boolean = false,
     val charset: Charset = Charsets.UTF_8,
     override val fileExtension: String = "txt",

@@ -3,7 +3,7 @@ package se.gustavkarlsson.slapshot.core.formats
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 import java.nio.charset.Charset
 
-data class LongStringFormat(
+public data class LongStringFormat(
     val trim: Boolean = false,
     val charset: Charset = Charsets.UTF_8,
     val diffLengthToPrint: Int = 50,

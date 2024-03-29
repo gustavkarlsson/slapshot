@@ -1,6 +1,6 @@
 package se.gustavkarlsson.slapshot.core
 
-enum class SnapshotAction {
+public enum class SnapshotAction {
     CompareOnly,
     CompareAndAdd,
     Overwrite;

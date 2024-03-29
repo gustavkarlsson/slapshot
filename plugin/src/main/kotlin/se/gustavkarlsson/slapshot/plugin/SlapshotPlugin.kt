@@ -18,7 +18,7 @@ private const val ACTION_VALUE_COMPARE_AND_ADD = "compareAndAdd"
 private const val ACTION_VALUE_OVERWRITE = "overwrite"
 
 @Suppress("unused")
-class SlapshotPlugin : Plugin<Project> {
+public class SlapshotPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.createExtension()
         project.addDependencies(extension)

@@ -1,6 +1,5 @@
 package se.gustavkarlsson.slapshot.core.formats
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
@@ -11,7 +10,7 @@ private val json by lazy {
     }
 }
 
-data class JsonFormat(
+public data class JsonFormat(
     val allowAddedKeys: Boolean = false,
     val explicitNulls: Boolean = true,
     override val fileExtension: String = "json",

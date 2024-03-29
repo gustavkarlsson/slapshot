@@ -1,6 +1,6 @@
 package se.gustavkarlsson.slapshot.plugin
 
-enum class SnapshotAction(val systemProperty: String) {
+public enum class SnapshotAction(public val systemProperty: String) {
     CompareOnly("compareOnly"),
     CompareAndAdd("compareAndAdd"),
     Overwrite("overwrite")

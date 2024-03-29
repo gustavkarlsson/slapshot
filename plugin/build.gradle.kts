@@ -17,6 +17,10 @@ tasks.test {
     useJUnitPlatform()
 }
 
+kotlin {
+    explicitApi()
+}
+
 gradlePlugin {
     plugins {
         create("slapshot") {

@@ -13,7 +13,7 @@ import se.gustavkarlsson.slapshot.core.getAction
 import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
 import java.nio.file.Path
 
-class JUnit4SnapshotContext : SnapshotContext<Description>, TestWatcher() {
+public class JUnit4SnapshotContext : SnapshotContext<Description>, TestWatcher() {
 
     private var description: Description? = null
 

@@ -12,7 +12,7 @@ import se.gustavkarlsson.slapshot.core.getAction
 import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
 import java.nio.file.Path
 
-data class JUnit5SnapshotContext internal constructor(
+public data class JUnit5SnapshotContext internal constructor(
     private val testInfo: TestInfo,
 ) : SnapshotContext<TestInfo> {
     override fun <T, F : SnapshotFormat<T>> createSnapshotter(

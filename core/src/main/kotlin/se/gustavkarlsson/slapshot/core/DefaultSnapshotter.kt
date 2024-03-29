@@ -6,7 +6,7 @@ import java.nio.file.StandardOpenOption
 import kotlin.io.path.*
 
 @InternalSlapshotApi
-class DefaultSnapshotter<T, TI>(
+public class DefaultSnapshotter<T, TI>(
     private val snapshotFileResolver: SnapshotFileResolver<TI>,
     private val rootDirectory: Path,
     private val getTestInfo: () -> TI,

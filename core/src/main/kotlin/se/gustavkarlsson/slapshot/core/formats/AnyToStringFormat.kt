@@ -2,7 +2,7 @@ package se.gustavkarlsson.slapshot.core.formats
 
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
-data class AnyToStringFormat(
+public data class AnyToStringFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Any?> {
     override fun test(actual: Any?, expected: Any?): String? {

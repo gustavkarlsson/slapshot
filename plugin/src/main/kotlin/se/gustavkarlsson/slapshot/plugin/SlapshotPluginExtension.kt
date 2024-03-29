@@ -2,8 +2,8 @@ package se.gustavkarlsson.slapshot.plugin
 
 import org.gradle.api.provider.Property
 
-interface SlapshotPluginExtension {
-    val snapshotRootDir: Property<Any>
-    val defaultAction: Property<SnapshotAction>
-    val testFramework: Property<TestFramework>
+public interface SlapshotPluginExtension {
+    public val snapshotRootDir: Property<Any>
+    public val defaultAction: Property<SnapshotAction>
+    public val testFramework: Property<TestFramework>
 }

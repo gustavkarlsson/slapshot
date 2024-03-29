@@ -3,8 +3,8 @@ package se.gustavkarlsson.slapshot.core
 import java.nio.file.Path
 import java.nio.file.Paths
 
-interface SnapshotContext<TI> {
-    fun <T, F : SnapshotFormat<T>> createSnapshotter(
+public interface SnapshotContext<TI> {
+    public fun <T, F : SnapshotFormat<T>> createSnapshotter(
         format: F,
         overrideRootDirectory: Path? = null,
         overrideSnapshotFileResolver: SnapshotFileResolver<TI>? = null,
@@ -13,13 +13,13 @@ interface SnapshotContext<TI> {
 }
 
 @InternalSlapshotApi
-fun getDefaultRootDirectory(): Path {
+public fun getDefaultRootDirectory(): Path {
     val dirString = System.getProperty("snapshotRootDir") ?: "snapshots"
     return Paths.get(dirString)
 }
 
 @InternalSlapshotApi
-fun getAction(): SnapshotAction {
+public fun getAction(): SnapshotAction {
     return when (val actionString = System.getProperty("snapshotAction")) {
         null -> SnapshotAction.CompareAndAdd
         "compareOnly" -> SnapshotAction.CompareOnly

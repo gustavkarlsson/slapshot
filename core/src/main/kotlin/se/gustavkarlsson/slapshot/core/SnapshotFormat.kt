@@ -1,9 +1,9 @@
 package se.gustavkarlsson.slapshot.core
 
-interface SnapshotFormat<T> {
-    val fileExtension: String
+public interface SnapshotFormat<T> {
+    public val fileExtension: String
 
-    fun test(actual: T, expected: T): String? {
+    public fun test(actual: T, expected: T): String? {
         return if (actual != expected) {
             "expected: <$expected> but was: <$actual>"
         } else {
@@ -11,7 +11,7 @@ interface SnapshotFormat<T> {
         }
     }
 
-    fun deserialize(bytes: ByteArray): T
+    public fun deserialize(bytes: ByteArray): T
 
-    fun serialize(value: T): ByteArray
+    public fun serialize(value: T): ByteArray
 }

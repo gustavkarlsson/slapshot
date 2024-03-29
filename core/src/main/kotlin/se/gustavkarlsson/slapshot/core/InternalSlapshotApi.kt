@@ -7,4 +7,4 @@ package se.gustavkarlsson.slapshot.core
     message = "This is an internal API that " +
         "should not be used from outside of slapshot. No compatibility guarantees are provided."
 )
-annotation class InternalSlapshotApi
+public annotation class InternalSlapshotApi

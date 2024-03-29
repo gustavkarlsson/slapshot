@@ -21,6 +21,10 @@ tasks.test {
     useJUnit()
 }
 
+kotlin {
+    explicitApi()
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {

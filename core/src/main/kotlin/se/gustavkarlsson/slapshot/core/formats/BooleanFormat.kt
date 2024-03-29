@@ -2,7 +2,7 @@ package se.gustavkarlsson.slapshot.core.formats
 
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
-data class BooleanFormat(
+public data class BooleanFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Boolean> {
     override fun deserialize(bytes: ByteArray): Boolean {
