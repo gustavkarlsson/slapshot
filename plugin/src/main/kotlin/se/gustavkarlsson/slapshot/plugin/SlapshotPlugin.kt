@@ -50,7 +50,7 @@ private fun Project.createExtension(): SlapshotPluginExtension {
         logger.info("Setting default snapshot root dir to $defaultSnapshotRootDir")
         testFramework.convention(TestFramework.JUnit5)
         snapshotRootDir.convention(defaultSnapshotRootDir)
-        snapshotSnapshotAction.convention(SnapshotAction.CompareAndAdd)
+        snapshotAction.convention(SnapshotAction.CompareAndAdd)
     }
 }
 
@@ -128,5 +128,5 @@ private fun getSnapshotAction(project: Project, extension: SlapshotPluginExtensi
         return propertySnapshotAction
     }
     project.logger.debug("Using $PROPERTY_KEY_ACTION from extension")
-    return extension.snapshotSnapshotAction.get()
+    return extension.snapshotAction.get()
 }
