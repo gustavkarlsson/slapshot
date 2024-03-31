@@ -1,4 +1,4 @@
-package se.gustavkarlsson.slapshot.sample
+package se.gustavkarlsson.slapshot.sample.junit5
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith

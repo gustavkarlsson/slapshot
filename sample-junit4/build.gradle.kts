@@ -1,3 +1,5 @@
+import se.gustavkarlsson.slapshot.plugin.TestFramework
+
 plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.slapshot)
@@ -7,13 +9,9 @@ group = extra["mavenGroup"]!!
 version = libs.versions.slapshot.get()
 
 dependencies {
-    testImplementation(libs.kotlin.test)
-}
-
-tasks.test {
-    useJUnitPlatform()
+    testImplementation(libs.junit.four)
 }
 
 slapshot {
-    snapshotRootDir.set(project.layout.projectDirectory.dir("snapshots"))
+    testFramework.set(TestFramework.JUnit4)
 }

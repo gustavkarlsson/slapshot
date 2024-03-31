@@ -10,8 +10,12 @@ version = libs.versions.slapshot.get()
 
 dependencies {
     implementation(project(":core"))
-    implementation(libs.junit.jupiter.engine)
+    implementation(platform(libs.junit.bom))
+    implementation(libs.junit.jupiter.api)
     implementation(libs.junit.jupiter.params)
+
+    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.strikt)
 }
 
 tasks.withType<KotlinCompile> {
