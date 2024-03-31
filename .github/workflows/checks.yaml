@@ -1,0 +1,40 @@
+name: Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  checks:
+    name: Checks
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '8'
+          cache: 'gradle'
+
+      - name: Check library and plugin
+        run: './gradlew check'
+
+      - name: Publish to Maven local
+        run: './gradlew publishToMavenLocal'
+
+      - name: Check samples
+        run: './gradlew sample-junit4:check sample-junit5:check --include-build sample-junit4 --include-build sample-junit5'
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: reports
+          path: |
+            **/build/reports/
