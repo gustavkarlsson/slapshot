@@ -1,7 +1,15 @@
 package se.gustavkarlsson.slapshot.core.formats
 
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.longOrNull
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
 private val json by lazy {
@@ -15,7 +23,10 @@ public data class JsonFormat(
     val explicitNulls: Boolean = true,
     override val fileExtension: String = "json",
 ) : SnapshotFormat<String> {
-    override fun test(actual: String, expected: String): String? {
+    override fun test(
+        actual: String,
+        expected: String,
+    ): String? {
         val expectedJson = json.decodeFromString<JsonElement>(expected)
         val actualJson = json.decodeFromString<JsonElement>(actual)
         val diffs = diffElement(JsonPath.ROOT, expectedJson, actualJson)
@@ -27,7 +38,11 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffElement(path: JsonPath, expected: JsonElement, actual: JsonElement): List<String> {
+    private fun diffElement(
+        path: JsonPath,
+        expected: JsonElement,
+        actual: JsonElement,
+    ): List<String> {
         diffType(path, expected, actual).let { typeDiff ->
             if (typeDiff != null) {
                 return listOf(typeDiff)
@@ -40,7 +55,11 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffType(path: JsonPath, expected: JsonElement, actual: JsonElement): String? {
+    private fun diffType(
+        path: JsonPath,
+        expected: JsonElement,
+        actual: JsonElement,
+    ): String? {
         val expectedType = expected.typeName()
         val actualType = actual.typeName()
         return if (expectedType != actualType) {
@@ -65,7 +84,11 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffPrimitive(path: JsonPath, expected: JsonPrimitive, actual: JsonPrimitive): List<String> {
+    private fun diffPrimitive(
+        path: JsonPath,
+        expected: JsonPrimitive,
+        actual: JsonPrimitive,
+    ): List<String> {
         return if (expected.content != actual.content) {
             listOf("Expected $path to be <${expected.content}> but it was <${actual.content}>")
         } else {
@@ -73,7 +96,11 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffObject(path: JsonPath, expected: JsonObject, actual: JsonObject): List<String> {
+    private fun diffObject(
+        path: JsonPath,
+        expected: JsonObject,
+        actual: JsonObject,
+    ): List<String> {
         return buildList {
             addAll(diffMissingKeys(path, expected, actual))
             if (!allowAddedKeys) {
@@ -83,13 +110,18 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffMissingKeys(path: JsonPath, expected: JsonObject, actual: JsonObject): List<String> {
-        val expectedKeys = if (explicitNulls) {
-            expected.keys
-        } else {
-            // Only expect keys where the value is not null
-            expected.filterValues { it !is JsonNull }.keys
-        }
+    private fun diffMissingKeys(
+        path: JsonPath,
+        expected: JsonObject,
+        actual: JsonObject,
+    ): List<String> {
+        val expectedKeys =
+            if (explicitNulls) {
+                expected.keys
+            } else {
+                // Only expect keys where the value is not null
+                expected.filterValues { it !is JsonNull }.keys
+            }
         val missingKeys = expectedKeys - actual.keys
         return missingKeys.map { key ->
             val keyPath = path.addKey(key)
@@ -97,7 +129,11 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffAddedKeys(path: JsonPath, expected: JsonObject, actual: JsonObject): List<String> {
+    private fun diffAddedKeys(
+        path: JsonPath,
+        expected: JsonObject,
+        actual: JsonObject,
+    ): List<String> {
         val addedKeys = actual.keys - expected.keys
         return addedKeys.map { key ->
             val keyPath = path.addKey(key)
@@ -105,7 +141,11 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffIntersectingKeys(path: JsonPath, expected: JsonObject, actual: JsonObject): List<String> {
+    private fun diffIntersectingKeys(
+        path: JsonPath,
+        expected: JsonObject,
+        actual: JsonObject,
+    ): List<String> {
         val intersectingKeys = actual.keys intersect expected.keys
         return intersectingKeys.flatMap { key ->
             val keyPath = path.addKey(key)
@@ -113,16 +153,22 @@ public data class JsonFormat(
         }
     }
 
-    private fun diffArray(path: JsonPath, expected: JsonArray, actual: JsonArray): List<String> {
-        val contentDiffs = expected.zip(actual).flatMapIndexed { index, (expectedElement, actualElement) ->
-            val indexPath = path.addIndex(index)
-            diffElement(indexPath, expectedElement, actualElement)
-        }
-        val sizeDiff = buildList {
-            if (expected.size != actual.size) {
-                add("Expected $path to have a length of <${expected.size}> but it had a length of <${actual.size}>")
+    private fun diffArray(
+        path: JsonPath,
+        expected: JsonArray,
+        actual: JsonArray,
+    ): List<String> {
+        val contentDiffs =
+            expected.zip(actual).flatMapIndexed { index, (expectedElement, actualElement) ->
+                val indexPath = path.addIndex(index)
+                diffElement(indexPath, expectedElement, actualElement)
             }
-        }
+        val sizeDiff =
+            buildList {
+                if (expected.size != actual.size) {
+                    add("Expected $path to have a length of <${expected.size}> but it had a length of <${actual.size}>")
+                }
+            }
         return contentDiffs + sizeDiff
     }
 
@@ -144,7 +190,9 @@ public data class JsonFormat(
 @JvmInline
 private value class JsonPath private constructor(val path: String) {
     fun addKey(key: String) = JsonPath("$path.$key")
+
     fun addIndex(index: Int) = JsonPath("$path[$index]")
+
     override fun toString() = path
 
     companion object {

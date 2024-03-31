@@ -13,7 +13,10 @@ public data class DoubleFormat(
         }
     }
 
-    override fun test(actual: Double, expected: Double): String? {
+    override fun test(
+        actual: Double,
+        expected: Double,
+    ): String? {
         return when {
             expected == actual -> null
             tolerance == 0.0 -> "expected: <$expected> but was: <$actual>"

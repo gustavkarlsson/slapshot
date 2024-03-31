@@ -6,7 +6,14 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import se.gustavkarlsson.slapshot.core.formats.*
+import se.gustavkarlsson.slapshot.core.formats.AnyToStringFormat
+import se.gustavkarlsson.slapshot.core.formats.BooleanFormat
+import se.gustavkarlsson.slapshot.core.formats.DoubleFormat
+import se.gustavkarlsson.slapshot.core.formats.ImageFormat
+import se.gustavkarlsson.slapshot.core.formats.JsonFormat
+import se.gustavkarlsson.slapshot.core.formats.LongFormat
+import se.gustavkarlsson.slapshot.core.formats.LongStringFormat
+import se.gustavkarlsson.slapshot.core.formats.StringFormat
 import javax.imageio.ImageIO
 
 @ExtendWith(SnapshotExtension::class)
@@ -52,7 +59,8 @@ class Tests {
 
     @Test
     fun `test json`() {
-        val json = """
+        val json =
+            """
             {
               "num": 5.0,
               "obj": {
@@ -61,13 +69,14 @@ class Tests {
               },
               "newNull": null
             }
-        """.trimIndent()
+            """.trimIndent()
         snapshotContext.createSnapshotter(jsonFormat).snapshot(json)
     }
 
     @Test
     fun `test long string`() {
-        val json = """
+        val json =
+            """
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin malesuada et dui et egestas.
             Praesent eu lectus quam. Maecenas facilisis commodo justo et placerat. Vivamus maximus vehicula dolor,
             quis interdum sem ultricies at. Sed eu odio eget nisl accumsan condimentum id eget elit.
@@ -75,7 +84,7 @@ class Tests {
             tincidunt tristique lectus. Nam sit amet urna tincidunt ante pellentesque luctus.
             Vivamus lobortis malesuada lorem, at consectetur urna. Sed in magna ac neque eleifend consectetur.
             Donec ullamcorper erat velit, eget aliquet enim egestas non.
-        """.trimIndent()
+            """.trimIndent()
         snapshotContext.createSnapshotter(LongStringFormat()).snapshot(json)
     }
 

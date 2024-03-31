@@ -5,7 +5,10 @@ import se.gustavkarlsson.slapshot.core.SnapshotFormat
 public data class AnyToStringFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Any?> {
-    override fun test(actual: Any?, expected: Any?): String? {
+    override fun test(
+        actual: Any?,
+        expected: Any?,
+    ): String? {
         return super.test(actual.toString(), expected.toString())
     }
 

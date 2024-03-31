@@ -4,14 +4,11 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
-import se.gustavkarlsson.slapshot.core.formats.*
-import javax.imageio.ImageIO
+import se.gustavkarlsson.slapshot.core.formats.StringFormat
 
 @RunWith(Enclosed::class)
 class EnclosedTests {
-
     class NestedTest {
-
         @get:Rule
         val snapshotContext = JUnit4SnapshotContext()
 

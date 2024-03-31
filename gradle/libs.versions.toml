@@ -7,6 +7,7 @@ junit4 = "4.13.2"
 junit5 = "5.10.2"
 jvmtarget = "1.8"
 strikt = "0.34.0"
+ktlint-plugin = "12.1.0"
 
 [libraries]
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
@@ -24,3 +25,4 @@ junit-four = { module = "junit:junit", version.ref = "junit4" }
 [plugins]
 slapshot = { id = "se.gustavkarlsson.slapshot", version.ref = "slapshot" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ktlint =  { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint-plugin" }

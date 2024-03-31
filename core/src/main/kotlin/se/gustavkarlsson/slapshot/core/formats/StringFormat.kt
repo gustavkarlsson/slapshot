@@ -8,7 +8,10 @@ public data class StringFormat(
     val charset: Charset = Charsets.UTF_8,
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<String> {
-    override fun test(actual: String, expected: String): String? {
+    override fun test(
+        actual: String,
+        expected: String,
+    ): String? {
         val sanitizedExpected = expected.trimIfEnabled()
         val sanitizedActual = actual.trimIfEnabled()
         return if (sanitizedExpected != sanitizedActual) {

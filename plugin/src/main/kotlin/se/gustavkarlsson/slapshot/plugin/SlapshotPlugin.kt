@@ -7,7 +7,11 @@ import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.testing.Test
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.findByType
+import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 import java.io.File
 
 private const val EXTENSION_NAME = "slapshot"
@@ -68,13 +72,14 @@ private fun Project.addDependencies(testFramework: Property<TestFramework>) {
         add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
 
         // Add this lazily, so the framework can be overridden before the dependency is added.
-        val testFrameworkDependency = testFramework.map { testFramework ->
-            @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
-            when (testFramework) {
-                TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
-                TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
+        val testFrameworkDependency =
+            testFramework.map { testFramework ->
+                @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
+                when (testFramework) {
+                    TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
+                    TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
+                }
             }
-        }
         addProvider("testImplementation", testFrameworkDependency)
     }
 }
@@ -89,7 +94,7 @@ private fun Project.createClearSnapshotsTask(): TaskProvider<Delete> {
 // TODO Can we check the dependencies for junit 4/5 and set the correct TestFramework?
 private fun Project.configure(
     extension: SlapshotPluginExtension,
-    clearSnapshotsTask: TaskProvider<Delete>
+    clearSnapshotsTask: TaskProvider<Delete>,
 ) {
     val snapshotRootDir = getSnapshotRootDir(extension)
     val defaultAction = getDefaultAction(extension)
@@ -121,12 +126,13 @@ private fun Project.getSnapshotRootDir(extension: SlapshotPluginExtension): File
 }
 
 private fun Project.getDefaultAction(extension: SlapshotPluginExtension): SnapshotAction {
-    val property = when (findProperty(PROPERTY_KEY_DEFAULT_ACTION)) {
-        ACTION_VALUE_COMPARE_ONLY -> SnapshotAction.CompareOnly
-        ACTION_VALUE_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
-        ACTION_VALUE_OVERWRITE -> SnapshotAction.Overwrite
-        else -> null
-    }
+    val property =
+        when (findProperty(PROPERTY_KEY_DEFAULT_ACTION)) {
+            ACTION_VALUE_COMPARE_ONLY -> SnapshotAction.CompareOnly
+            ACTION_VALUE_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
+            ACTION_VALUE_OVERWRITE -> SnapshotAction.Overwrite
+            else -> null
+        }
     if (property != null) {
         logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from project properties")
         return property

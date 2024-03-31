@@ -3,7 +3,11 @@ package se.gustavkarlsson.slapshot.core
 import java.nio.file.OpenOption
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
-import kotlin.io.path.*
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.notExists
+import kotlin.io.path.readBytes
+import kotlin.io.path.writeBytes
 
 @InternalSlapshotApi
 public class DefaultSnapshotter<T, TI>(
@@ -14,7 +18,6 @@ public class DefaultSnapshotter<T, TI>(
     private val action: SnapshotAction,
     private val onFail: (message: String) -> Unit,
 ) : Snapshotter<T> {
-
     override fun snapshot(data: T) {
         val file = snapshotFileResolver.resolve(rootDirectory, getTestInfo(), format.fileExtension)
         when (action) {
@@ -24,37 +27,52 @@ public class DefaultSnapshotter<T, TI>(
         }
     }
 
-    private fun compareOnly(file: Path, data: T) {
+    private fun compareOnly(
+        file: Path,
+        data: T,
+    ) {
         if (file.notExists()) {
             onFail("Snapshot not found: '$file'")
         }
         compareSnapshot(file, format, data)
     }
 
-    private fun compareAndAdd(file: Path, data: T) {
+    private fun compareAndAdd(
+        file: Path,
+        data: T,
+    ) {
         if (file.exists()) {
             compareSnapshot(file, format, data)
         } else {
-            val createNewOptions = arrayOf(
-                StandardOpenOption.CREATE_NEW,
-                StandardOpenOption.WRITE,
-            )
+            val createNewOptions =
+                arrayOf(
+                    StandardOpenOption.CREATE_NEW,
+                    StandardOpenOption.WRITE,
+                )
             writeSnapshot(file, format, data, *createNewOptions)
             onFail("Missing snapshot created: '$file'")
         }
     }
 
-    private fun overwrite(file: Path, data: T) {
-        val overwriteOptions = arrayOf(
-            StandardOpenOption.CREATE,
-            StandardOpenOption.WRITE,
-            StandardOpenOption.TRUNCATE_EXISTING,
-        )
+    private fun overwrite(
+        file: Path,
+        data: T,
+    ) {
+        val overwriteOptions =
+            arrayOf(
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+            )
         writeSnapshot(file, format, data, *overwriteOptions)
         onFail("Overwrote existing snapshot: '$file'")
     }
 
-    private fun <T, F : SnapshotFormat<T>> compareSnapshot(file: Path, format: F, data: T) {
+    private fun <T, F : SnapshotFormat<T>> compareSnapshot(
+        file: Path,
+        format: F,
+        data: T,
+    ) {
         val bytes = file.readBytes()
         val old = format.deserialize(bytes)
         val diffString = format.test(old, data)
@@ -63,7 +81,12 @@ public class DefaultSnapshotter<T, TI>(
         }
     }
 
-    private fun <T, F : SnapshotFormat<T>> writeSnapshot(file: Path, format: F, data: T, vararg options: OpenOption) {
+    private fun <T, F : SnapshotFormat<T>> writeSnapshot(
+        file: Path,
+        format: F,
+        data: T,
+        vararg options: OpenOption,
+    ) {
         val bytes = format.serialize(data)
         file.parent.createDirectories()
         file.writeBytes(bytes, *options)

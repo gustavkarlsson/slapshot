@@ -15,7 +15,10 @@ public data class LongStringFormat(
         }
     }
 
-    override fun test(actual: String, expected: String): String? {
+    override fun test(
+        actual: String,
+        expected: String,
+    ): String? {
         val sanitizedExpected = expected.trimIfEnabled()
         val sanitizedActual = actual.trimIfEnabled()
         return if (sanitizedExpected != sanitizedActual) {
@@ -25,13 +28,16 @@ public data class LongStringFormat(
         }
     }
 
-    private fun createDiffString(expected: String, actual: String): String {
+    private fun createDiffString(
+        expected: String,
+        actual: String,
+    ): String {
         val commonPrefixLength = expected.commonPrefixWith(actual).length
         val commonSuffixLength = expected.commonSuffixWith(actual).length
         val differingExpected = expected.drop(commonPrefixLength).dropLast(commonSuffixLength).take(diffLengthToPrint)
         val differingActual = actual.drop(commonPrefixLength).dropLast(commonSuffixLength).take(diffLengthToPrint)
         return "Strings differ at ${expected.positionOf(commonPrefixLength)}. " +
-                "Expected: <$differingExpected> but was: <$differingActual>"
+            "Expected: <$differingExpected> but was: <$differingActual>"
     }
 
     private fun String.positionOf(index: Int): String {

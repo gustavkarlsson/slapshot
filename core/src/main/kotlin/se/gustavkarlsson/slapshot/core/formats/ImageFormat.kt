@@ -23,47 +23,59 @@ public data class ImageFormat(
         }
     }
 
-    override fun test(actual: BufferedImage, expected: BufferedImage): String? {
+    override fun test(
+        actual: BufferedImage,
+        expected: BufferedImage,
+    ): String? {
         validate(expected, actual)?.let { error -> return error }
         val difference = getDifference(expected, actual)
         return if (difference > tolerance) {
             "Images differ by $difference"
-        } else null
+        } else {
+            null
+        }
     }
 
-    private fun validate(expected: BufferedImage, actual: BufferedImage): String? = when {
-        expected.width != actual.width || expected.height != actual.height -> {
-            "Images have different dimensions!"
+    private fun validate(
+        expected: BufferedImage,
+        actual: BufferedImage,
+    ): String? =
+        when {
+            expected.width != actual.width || expected.height != actual.height -> {
+                "Images have different dimensions!"
+            }
+
+            expected.colorModel.transferType != actual.colorModel.transferType -> {
+                "Images have different transfer type"
+            }
+
+            expected.colorModel.colorSpace != actual.colorModel.colorSpace -> {
+                "Images have different color space!"
+            }
+
+            expected.colorModel.transparency != actual.colorModel.transparency -> {
+                "Images have different transparency type"
+            }
+
+            expected.colorModel.isAlphaPremultiplied != actual.colorModel.isAlphaPremultiplied -> {
+                "Images have different values for isAlphaPremultiplied"
+            }
+
+            !expected.colorModel.componentSize.contentEquals(actual.colorModel.componentSize) -> {
+                "Images have different component sizes! Alpha missing?"
+            }
+
+            !expected.colorModel.componentSize.all { it == 8 } -> {
+                "Component size is not 8 bits"
+            }
+
+            else -> null
         }
 
-        expected.colorModel.transferType != actual.colorModel.transferType -> {
-            "Images have different transfer type"
-        }
-
-        expected.colorModel.colorSpace != actual.colorModel.colorSpace -> {
-            "Images have different color space!"
-        }
-
-        expected.colorModel.transparency != actual.colorModel.transparency -> {
-            "Images have different transparency type"
-        }
-
-        expected.colorModel.isAlphaPremultiplied != actual.colorModel.isAlphaPremultiplied -> {
-            "Images have different values for isAlphaPremultiplied"
-        }
-
-        !expected.colorModel.componentSize.contentEquals(actual.colorModel.componentSize) -> {
-            "Images have different component sizes! Alpha missing?"
-        }
-
-        !expected.colorModel.componentSize.all { it == 8 } -> {
-            "Component size is not 8 bits"
-        }
-
-        else -> null
-    }
-
-    private fun getDifference(expected: BufferedImage, actual: BufferedImage): Double {
+    private fun getDifference(
+        expected: BufferedImage,
+        actual: BufferedImage,
+    ): Double {
         val hasAlpha = expected.colorModel.hasAlpha()
         val pixelDeltas = AtomicLong()
         // Launch a coroutine per line, for parallelism
@@ -87,7 +99,10 @@ public data class ImageFormat(
         return pixelDeltas.get().toDouble() / maxPossibleDelta
     }
 
-    private fun getPixelDelta(expectedColor: Color, actualColor: Color): Int {
+    private fun getPixelDelta(
+        expectedColor: Color,
+        actualColor: Color,
+    ): Int {
         val redDelta = abs(expectedColor.red - actualColor.red)
         val greenDelta = abs(expectedColor.green - actualColor.green)
         val blueDelta = abs(expectedColor.blue - actualColor.blue)

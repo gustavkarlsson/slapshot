@@ -1,6 +1,5 @@
 package se.gustavkarlsson.slapshot.core.formats
 
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -18,49 +17,53 @@ class JsonFormatTest {
 
     @Test
     fun `test values passing`() {
-        val table = listOf(
-            "5" to " 5 ",
-            "null" to " null ",
-            "\"hello\"" to " \"hello\" ",
-            "[null, \"a\", 5]" to " [ null,\"a\", 5 ] ",
-            "{}" to " { } ",
-            """{ "keyA": true, "keyB": [1, 2] }""" to """{  "keyA" :  true ,  "keyB" : [ 1,  2 ]  }  """,
-        )
+        val table =
+            listOf(
+                "5" to " 5 ",
+                "null" to " null ",
+                "\"hello\"" to " \"hello\" ",
+                "[null, \"a\", 5]" to " [ null,\"a\", 5 ] ",
+                "{}" to " { } ",
+                """{ "keyA": true, "keyB": [1, 2] }""" to """{  "keyA" :  true ,  "keyB" : [ 1,  2 ]  }  """,
+            )
 
         tableTestValuesPassing(table, format)
     }
 
     @Test
     fun `test values failing`() {
-        val table = listOf(
-            "foo" to "bar",
-            "true" to "5",
-            """{ "keyA": true }""" to """{ "keyA": false }""",
-            """{ "keyA": true }""" to """{ "keyA": 5 }""",
-            """{ "keyA": true }""" to """{  }""",
-            """{ }""" to """{ "keyA": true }""",
-            """{}""" to """{ "keyA": null }""",
-            "[1, 2]" to "[1, 2, 3]",
-            "[1]" to "1",
-        )
+        val table =
+            listOf(
+                "foo" to "bar",
+                "true" to "5",
+                """{ "keyA": true }""" to """{ "keyA": false }""",
+                """{ "keyA": true }""" to """{ "keyA": 5 }""",
+                """{ "keyA": true }""" to """{  }""",
+                """{ }""" to """{ "keyA": true }""",
+                """{}""" to """{ "keyA": null }""",
+                "[1, 2]" to "[1, 2, 3]",
+                "[1]" to "1",
+            )
 
         tableTestValuesFailing(table, format)
     }
 
     @Test
     fun `test non-explicit nulls`() {
-        val table = listOf(
-            """{}""" to """{ "keyA": null }""",
-        )
+        val table =
+            listOf(
+                """{}""" to """{ "keyA": null }""",
+            )
 
         tableTestValuesPassing(table, formatNonExplicitNulls)
     }
 
     @Test
     fun `test allow added keys`() {
-        val table = listOf(
-            """{ "keyA": "added" }""" to """{}""",
-        )
+        val table =
+            listOf(
+                """{ "keyA": "added" }""" to """{}""",
+            )
 
         tableTestValuesPassing(table, formatAllowAddedKeys)
     }
@@ -68,7 +71,8 @@ class JsonFormatTest {
     @Test
     fun `serialize and deserialize values`() {
         @Language("json")
-        val jsonString = """
+        val jsonString =
+            """
             {
               "keyA": 5,
               "keyB": true,
@@ -77,7 +81,7 @@ class JsonFormatTest {
               "keyE": [1, 2, 3],
               "keyF": { "keyG": true }
             }
-        """.trimIndent()
+            """.trimIndent()
         val inputJson = Json.decodeFromString<JsonElement>(jsonString)
 
         val serialized = format.serialize(Json.encodeToString(inputJson))
@@ -90,7 +94,8 @@ class JsonFormatTest {
     @Test
     fun `test error message`() {
         @Language("json")
-        val actualJsonString = """
+        val actualJsonString =
+            """
             {
               "keyA": [
                 0,
@@ -99,10 +104,11 @@ class JsonFormatTest {
                 }
               ]
             }
-        """.trimIndent()
+            """.trimIndent()
 
         @Language("json")
-        val expectedJsonString = """
+        val expectedJsonString =
+            """
             {
               "keyA": [
                 0,
@@ -111,7 +117,7 @@ class JsonFormatTest {
                 }
               ]
             }
-        """.trimIndent()
+            """.trimIndent()
         val error = format.test(actualJsonString, expectedJsonString)
         expectThat(error)
             .isNotNull()
