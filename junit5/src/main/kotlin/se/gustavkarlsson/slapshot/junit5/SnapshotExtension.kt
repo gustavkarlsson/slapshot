@@ -10,7 +10,7 @@ import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
 import java.util.*
 
-internal class SnapshotExtension : ParameterResolver {
+public class SnapshotExtension : ParameterResolver {
     override fun supportsParameter(parameterContext: ParameterContext, extensionContext: ExtensionContext): Boolean {
         return when {
             isJUnit5SnapshotContext(parameterContext.parameter) -> true

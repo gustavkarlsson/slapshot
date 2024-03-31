@@ -1,18 +1,8 @@
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        mavenLocal()
         mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-pluginManagement {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        gradlePluginPortal()
     }
 }
 
@@ -23,6 +13,4 @@ include(
     "junit4",
     "junit5",
     "plugin",
-    "sample-junit4",
-    "sample-junit5",
 )

@@ -1,15 +1,12 @@
 import se.gustavkarlsson.slapshot.plugin.TestFramework
 
 plugins {
-    alias(libs.plugins.kotlin.jvm)
-    alias(libs.plugins.slapshot)
+    kotlin("jvm") version "1.9.22"
+    id("se.gustavkarlsson.slapshot") version "latest.integration" // Replace version with a release version
 }
 
-group = extra["mavenGroup"]!!
-version = libs.versions.slapshot.get()
-
 dependencies {
-    testImplementation(libs.junit.four)
+    testImplementation("junit:junit:4.13.2")
 }
 
 slapshot {
