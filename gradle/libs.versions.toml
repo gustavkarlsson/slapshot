@@ -14,9 +14,11 @@ strikt = { module = "io.strikt:strikt-core", version.ref = "strikt" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit5" }
+junit-jupiter-aggregator = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit5" }
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api" }
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine" }
 junit-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
 junit-four = { module = "junit:junit", version.ref = "junit4" }
 
 [plugins]

@@ -9,9 +9,8 @@ group = extra["mavenGroup"]!!
 version = libs.versions.slapshot.get()
 
 dependencies {
-    testImplementation(platform(libs.junit.bom))
-    testImplementation(libs.junit.jupiter.api)
-    testRuntimeOnly(libs.junit.jupiter.engine)
+    testImplementation(libs.junit.jupiter.aggregator)
+    testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.strikt)
 }
 
