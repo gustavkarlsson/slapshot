@@ -6,7 +6,7 @@ plugins {
 }
 
 group = extra["mavenGroup"]!!
-version = libs.versions.slapshot.get()
+version = findProperty("releaseVersion") as String
 
 dependencies {
     implementation(project(":core"))

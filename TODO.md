@@ -1,5 +1,3 @@
-Add CI
-
 To check samples, do the following:
 ```shell
 ./gradlew check publishToMavenLocal

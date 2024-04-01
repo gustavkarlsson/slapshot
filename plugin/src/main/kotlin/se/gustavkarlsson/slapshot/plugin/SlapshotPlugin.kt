@@ -13,6 +13,7 @@ import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.withType
 import java.io.File
+import java.util.Properties
 
 private const val EXTENSION_NAME = "slapshot"
 private const val DEFAULT_SNAPSHOT_ROOT_DIR_NAME = "snapshots"
@@ -66,23 +67,30 @@ private fun Project.getDefaultSnapshotRootDir(): File {
     return testSourcesDir.resolve(DEFAULT_SNAPSHOT_ROOT_DIR_NAME)
 }
 
-// FIXME set correct versions
 private fun Project.addDependencies(testFramework: Property<TestFramework>) {
+    val releaseVersion = readReleaseVersion()
     dependencies {
-        add("testImplementation", "se.gustavkarlsson.slapshot:core:1.0-SNAPSHOT")
-
+        add("testImplementation", "se.gustavkarlsson.slapshot:core:$releaseVersion")
         // Add this lazily, so the framework can be overridden before the dependency is added.
         val testFrameworkDependency =
             testFramework.map { testFramework ->
                 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                 when (testFramework) {
-                    TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:1.0-SNAPSHOT"
-                    TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:1.0-SNAPSHOT"
+                    TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:junit4:$releaseVersion"
+                    TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:junit5:$releaseVersion"
                 }
             }
         addProvider("testImplementation", testFrameworkDependency)
     }
 }
+
+private fun readReleaseVersion(): String =
+    Thread.currentThread().contextClassLoader.getResourceAsStream("plugin.properties").use {
+        Properties().run {
+            load(it)
+            getProperty("releaseVersion") as String
+        }
+    }
 
 private fun Project.createClearSnapshotsTask(): TaskProvider<Delete> {
     return tasks.register<Delete>("clearSnapshots") {
