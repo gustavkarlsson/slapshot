@@ -2,7 +2,7 @@ import se.gustavkarlsson.slapshot.plugin.TestFramework
 
 plugins {
     kotlin("jvm") version "1.9.22"
-    id("se.gustavkarlsson.slapshot") version "latest.integration" // Replace version with a release version
+    id("se.gustavkarlsson.slapshot") version "dev" // Replace version with a release version
 }
 
 dependencies {
