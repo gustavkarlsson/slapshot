@@ -12,6 +12,7 @@ import se.gustavkarlsson.slapshot.core.getAction
 import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
 import java.nio.file.Path
 
+@ConsistentCopyVisibility
 public data class JUnit5SnapshotContext internal constructor(
     private val testInfo: TestInfo,
 ) : SnapshotContext<TestInfo> {

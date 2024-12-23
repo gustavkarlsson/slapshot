@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -12,7 +13,7 @@ subprojects {
     extra["mavenGroup"] = "se.gustavkarlsson.slapshot"
 
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = libs.versions.jvmtarget.get()
+        compilerOptions.jvmTarget.set(libs.versions.jvmtarget.map(JvmTarget::fromTarget))
     }
     tasks.withType<JavaCompile> {
         targetCompatibility = libs.versions.jvmtarget.get()
