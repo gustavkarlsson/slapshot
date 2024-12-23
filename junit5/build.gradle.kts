@@ -20,7 +20,7 @@ dependencies {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.freeCompilerArgs += "-opt-in=se.gustavkarlsson.slapshot.core.InternalSlapshotApi"
+    compilerOptions.freeCompilerArgs.add("-opt-in=se.gustavkarlsson.slapshot.core.InternalSlapshotApi")
 }
 
 tasks.test {
