@@ -5,7 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     id("java-gradle-plugin")
     `kotlin-dsl`
-    `maven-publish`
+    // FIXME is this necessary? `maven-publish`
     alias(libs.plugins.gradle.plugin.publish)
     signing
 }
@@ -55,7 +55,6 @@ kotlin {
     }
 }
 
-@Suppress("UnstableApiUsage")
 gradlePlugin {
     website.set("https://github.com/gustavkarlsson/slapshot")
     vcsUrl.set("https://github.com/gustavkarlsson/slapshot")
