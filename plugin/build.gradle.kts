@@ -3,10 +3,9 @@ import org.jetbrains.kotlin.gradle.internal.ensureParentDirsCreated
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
-    id("java-gradle-plugin")
     `kotlin-dsl`
-    // FIXME is this necessary? `maven-publish`
     alias(libs.plugins.gradle.plugin.publish)
+    alias(libs.plugins.dokka)
     signing
 }
 
@@ -56,8 +55,8 @@ kotlin {
 }
 
 gradlePlugin {
-    website.set("https://github.com/gustavkarlsson/slapshot")
-    vcsUrl.set("https://github.com/gustavkarlsson/slapshot")
+    website.set("https://github.com/gustavkarlsson/slapshot/")
+    vcsUrl.set("https://github.com/gustavkarlsson/slapshot/")
 
     plugins {
         create("slapshot") {
@@ -71,8 +70,8 @@ gradlePlugin {
 }
 
 signing {
-    val signingKey: String? by project
-    val signingPassword: String? by project
+    val signingKey = findProperty("signingKey") as? String
+    val signingPassword = findProperty("signingPassword") as? String
     isRequired = signingKey != null && signingPassword != null
     useInMemoryPgpKeys(signingKey, signingPassword)
 }

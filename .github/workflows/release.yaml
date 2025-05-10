@@ -33,8 +33,9 @@ jobs:
           ./gradlew publishToMavenCentral --no-configuration-cache \
             -PmavenCentralUsername='${{ secrets.MAVEN_CENTRAL_PUBLISHER_USERNAME }}' \
             -PmavenCentralPassword='${{ secrets.MAVEN_CENTRAL_PUBLISHER_PASSWORD }}' \
-            -Psigning.signingInMemoryKey='${{ secrets.GPG_PRIVATE_KEY }}' \
-            -Psigning.signingInMemoryKeyPassword='${{ secrets.GPG_PASSPHRASE }}' \
+            -PRELEASE_SIGNING_ENABLED=true \
+            -PsigningKey='${{ secrets.GPG_PRIVATE_KEY }}' \
+            -PsigningPassword='${{ secrets.GPG_PASSPHRASE }}' \
             -PreleaseVersion='${{ github.event.inputs.version }}'
 
       - name: Publish plugin
@@ -45,3 +46,6 @@ jobs:
             -PsigningKey='${{ secrets.GPG_PRIVATE_KEY }}' \
             -PsigningPassword='${{ secrets.GPG_PASSPHRASE }}' \
             -PreleaseVersion='${{ github.event.inputs.version }}'
+
+      - name: Tag release
+        run: | # FIXME Create tag
