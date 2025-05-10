@@ -1,0 +1,47 @@
+name: Checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (semantic)'
+        required: true
+
+jobs:
+  checks:
+    name: Checks
+    uses: ./.github/workflows/checks.yaml
+
+  release:
+    name: Release
+    needs: checks
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'zulu'
+          cache: 'gradle'
+
+      # FIXME Change to publishAndReleaseToMavenCentral when confirmed to be working!
+      - name: Publish libraries
+        run: |
+          ./gradlew publishToMavenCentral --no-configuration-cache \
+            -PmavenCentralUsername='${{ secrets.MAVEN_CENTRAL_PUBLISHER_USERNAME }}' \
+            -PmavenCentralPassword='${{ secrets.MAVEN_CENTRAL_PUBLISHER_PASSWORD }}' \
+            -Psigning.signingInMemoryKey='${{ secrets.GPG_PRIVATE_KEY }}' \
+            -Psigning.signingInMemoryKeyPassword='${{ secrets.GPG_PASSPHRASE }}' \
+            -PreleaseVersion='${{ github.event.inputs.version }}'
+
+      - name: Publish plugin
+        run: |
+          ./gradlew publishPlugins \
+            -Pgradle.publish.key='${{ secrets.GRADLE_PUBLISH_KEY }}' \
+            -Pgradle.publish.secret='${{ secrets.GRADLE_PUBLISH_SECRET }}' \
+            -PsigningKey='${{ secrets.GPG_PRIVATE_KEY }}' \
+            -PsigningPassword='${{ secrets.GPG_PASSPHRASE }}' \
+            -PreleaseVersion='${{ github.event.inputs.version }}'

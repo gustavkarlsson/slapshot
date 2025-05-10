@@ -8,11 +8,12 @@ on:
     branches:
       - '*'
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   checks:
     name: Checks
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out
         uses: actions/checkout@v4
@@ -20,7 +21,7 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: '8'
+          java-version: '11'
           distribution: 'zulu'
           cache: 'gradle'
 
