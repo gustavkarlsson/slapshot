@@ -2,6 +2,9 @@ package se.gustavkarlsson.slapshot.core.formats
 
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
+/**
+ * A snapshot format for generic objects. Uses the `toString` method of objects to generate their serialized form.
+ */
 public data class AnyToStringFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Any?> {

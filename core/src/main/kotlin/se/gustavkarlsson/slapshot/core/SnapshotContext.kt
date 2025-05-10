@@ -3,7 +3,25 @@ package se.gustavkarlsson.slapshot.core
 import java.nio.file.Path
 import java.nio.file.Paths
 
+/**
+ * Provides a context for creating snapshotters used to capture and test snapshots of data.
+ *
+ * This interface allows configuring snapshotters with customizable options such as
+ * the root directory, file resolution logic, and the action to perform on snapshots.
+ *
+ * @param TI The type of test information required for resolving snapshot file paths.
+ */
 public interface SnapshotContext<TI> {
+
+    /**
+     * Creates a new snapshotter configured with the specified format and optional overrides.
+     *
+     * @param format The snapshot format to use for serializing and deserializing test data.
+     * @param overrideRootDirectory An optional root directory to override the default directory for storing snapshots.
+     * @param overrideSnapshotFileResolver An optional resolver to override the default logic for resolving snapshot file paths.
+     * @param overrideAction An optional action to override the default behavior for handling snapshots.
+     * @return A new snapshotter configured with the specified parameters.
+     */
     public fun <T, F : SnapshotFormat<T>> createSnapshotter(
         format: F,
         overrideRootDirectory: Path? = null,

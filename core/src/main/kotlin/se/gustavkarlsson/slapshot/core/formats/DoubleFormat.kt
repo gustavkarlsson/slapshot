@@ -3,7 +3,13 @@ package se.gustavkarlsson.slapshot.core.formats
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 import kotlin.math.abs
 
+/**
+ * A snapshot format for Double values, with an optional tolerance setting. Values are stored in plain text.
+ */
 public data class DoubleFormat(
+    /**
+     * The non-negative tolerance within which two double values are considered equal.
+     */
     val tolerance: Double = 0.0,
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Double> {

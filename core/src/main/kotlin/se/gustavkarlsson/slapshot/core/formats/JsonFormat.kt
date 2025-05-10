@@ -12,12 +12,16 @@ import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.longOrNull
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
-private val json by lazy {
-    Json {
-        prettyPrint = true
-    }
+private val json = Json {
+    prettyPrint = true
 }
 
+/**
+ * A snapshot format for comparing and storing JSON data.
+ *
+ * Snapshots are pretty printed, and comparison errors are presented in a JSONPath format to make them easy to
+ * find in large snapshots.
+ */
 public data class JsonFormat(
     val allowAddedKeys: Boolean = false,
     val explicitNulls: Boolean = true,

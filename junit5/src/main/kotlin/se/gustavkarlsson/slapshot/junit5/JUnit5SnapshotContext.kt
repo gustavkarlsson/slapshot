@@ -12,8 +12,12 @@ import se.gustavkarlsson.slapshot.core.getAction
 import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
 import java.nio.file.Path
 
-@ConsistentCopyVisibility
-public data class JUnit5SnapshotContext internal constructor(
+/**
+ * Snapshot context implementation for JUnit 5 Jupiter.
+ *
+ * Used to create [Snapshotter] instances for use in JUnit 5 Jupiter tests.
+ */
+public class JUnit5SnapshotContext internal constructor(
     private val testInfo: TestInfo,
 ) : SnapshotContext<TestInfo> {
     override fun <T, F : SnapshotFormat<T>> createSnapshotter(

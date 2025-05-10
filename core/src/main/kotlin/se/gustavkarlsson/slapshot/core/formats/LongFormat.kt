@@ -2,6 +2,9 @@ package se.gustavkarlsson.slapshot.core.formats
 
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
+/**
+ * A snapshot format for Long values. Values are stored in plain text.
+ */
 public data class LongFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Long> {
