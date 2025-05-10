@@ -27,9 +27,15 @@ jobs:
           distribution: 'zulu'
           cache: 'gradle'
 
-      # FIXME publish using version input
+      # FIXME Change to publishAndReleaseToMavenCentral when confirmed to be working!
       - name: Publish libraries
         run: |
+          ./gradlew publishToMavenCentral --no-configuration-cache \
+            -PmavenCentralUsername='${{ secrets.MAVEN_CENTRAL_PUBLISHER_USERNAME }}' \
+            -PmavenCentralPassword='${{ secrets.MAVEN_CENTRAL_PUBLISHER_PASSWORD }}' \
+            -Psigning.signingInMemoryKey='${{ secrets.GPG_PRIVATE_KEY }}' \
+            -Psigning.signingInMemoryKeyPassword='${{ secrets.GPG_PASSPHRASE }}' \
+            -PreleaseVersion='${{ github.event.inputs.version }}'
 
       - name: Publish plugin
         run: |
