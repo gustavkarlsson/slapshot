@@ -158,3 +158,10 @@ This can be useful if you have changed how or where snapshots are stored and wan
 ## Sample projects
 
 Check out the sample projects to see how to integrate Slapshot in different types of projects.
+
+To run them, you have to first publish a local version of the plugin.
+
+```shell
+./gradlew check publishToMavenLocal
+./gradlew sample-junit4:check sample-junit5:check --include-build sample-junit4 --include-build sample-junit5
+```
