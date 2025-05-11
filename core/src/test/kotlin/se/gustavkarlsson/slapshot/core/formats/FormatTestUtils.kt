@@ -67,3 +67,17 @@ fun tableTestDeserializationFailure(
         }
     }
 }
+
+fun <T> tableTestSerializationFailure(
+    table: List<T>,
+    format: SnapshotFormat<T>,
+) {
+    expect {
+        for (invalid in table) {
+            catching { format.serialize(invalid) }
+                .describedAs("serialize(\"$invalid\")")
+                .isFailure()
+                .isA<IllegalArgumentException>()
+        }
+    }
+}

@@ -25,7 +25,7 @@ class Tests {
         this.snapshotContext = snapshotContext
     }
 
-    private val jsonFormat = JsonFormat(explicitNulls = false)
+    private val jsonFormat = JsonFormat()
 
     @Test
     fun `test string`() {

@@ -14,7 +14,7 @@ class SimpleTests {
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
 
-    private val jsonFormat = JsonFormat(explicitNulls = false)
+    private val jsonFormat = JsonFormat()
 
     @Test
     fun `test string`() {
