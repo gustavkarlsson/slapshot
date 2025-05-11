@@ -3,7 +3,6 @@
 ## Before next release
 * Add CI status check
 * Test passing actions as Gradle properties or setting in plugin extension
-* Add web server sample
 * Extract heavier snapshot formats (Image, JSON, Ktor) to separate libs
 
 ## At some point

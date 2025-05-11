@@ -13,4 +13,4 @@ pluginManagement {
     }
 }
 
-rootProject.name = "slapshot-sample-junit5"
+rootProject.name = "slapshot-sample-ktor"

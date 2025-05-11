@@ -175,5 +175,5 @@ To run them, you have to first publish a local version of the plugin.
 
 ```shell
 ./gradlew check publishToMavenLocal
-./gradlew sample-junit4:check sample-junit5:check --include-build sample-junit4 --include-build sample-junit5
+./gradlew sample-junit4:check sample-junit5:check sample-ktor:check --include-build sample-junit4 --include-build sample-junit5 --include-build sample-ktor
 ```
