@@ -32,7 +32,7 @@ jobs:
         run: './gradlew publishToMavenLocal'
 
       - name: Check samples
-        run: './gradlew sample-junit4:check sample-junit5:check --include-build sample-junit4 --include-build sample-junit5'
+        run: './gradlew sample-junit4:check sample-junit5:check sample-ktor:check --include-build sample-junit4 --include-build sample-junit5 --include-build sample-ktor'
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
