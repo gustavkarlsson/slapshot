@@ -13,6 +13,27 @@ import se.gustavkarlsson.slapshot.core.getAction
 import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
 import java.nio.file.Path
 
+/**
+ * Snapshot context implementation for JUnit 4.
+ *
+ * Add as a test rule to get started.
+ * The context can then be used to create [Snapshotter] instances that are used in tests.
+ *
+ * Example:
+ * ```
+ * class MyTests {
+ *     @get:Rule
+ *     val snapshotContext = JUnit4SnapshotContext()
+ *     val snapshotter = snapshotContext.createSnapshotter(StringFormat())
+ *
+ *     @Test
+ *     fun `test string`() {
+ *         val result = "foo" + "bar"
+ *         snapshotter.snapshot(result)
+ *     }
+ * }
+ * ```
+ */
 public class JUnit4SnapshotContext : SnapshotContext<Description>, TestWatcher() {
     private var description: Description? = null
 
