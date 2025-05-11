@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicLong
 import javax.imageio.ImageIO
 import kotlin.math.abs
 
-// TODO Add tests
-
 /**
  * A snapshot format for handling images.
  *
@@ -43,7 +41,7 @@ public data class ImageFormat(
         actual: BufferedImage,
         expected: BufferedImage,
     ): String? {
-        validate(actual, expected)?.let { error -> return error }
+        testMetadata(actual, expected)?.let { error -> return error }
         val difference = getDifference(actual, expected)
         return if (difference > tolerance) {
             "Images differ by $difference"
@@ -52,37 +50,31 @@ public data class ImageFormat(
         }
     }
 
-    private fun validate(
+    private fun testMetadata(
         actual: BufferedImage,
         expected: BufferedImage,
     ): String? =
         when {
             actual.width != expected.width || actual.height != expected.height -> {
-                "Images have different dimensions!"
-            }
-
-            actual.colorModel.transferType != expected.colorModel.transferType -> {
-                "Images have different transfer type"
+                "Images have different dimensions." +
+                    " Expected: ${expected.width}x${expected.height}, actual: ${actual.width}x${actual.height}"
             }
 
             actual.colorModel.colorSpace != expected.colorModel.colorSpace -> {
-                "Images have different color space!"
+                "Images have different color space"
             }
 
             actual.colorModel.transparency != expected.colorModel.transparency -> {
                 "Images have different transparency type"
             }
 
-            actual.colorModel.isAlphaPremultiplied != expected.colorModel.isAlphaPremultiplied -> {
-                "Images have different values for isAlphaPremultiplied"
-            }
-
             !actual.colorModel.componentSize.contentEquals(expected.colorModel.componentSize) -> {
-                "Images have different component sizes! Alpha missing?"
+                "Images have different component sizes. Alpha missing?" +
+                    " Expected: ${expected.colorModel.componentSize}, actual: ${actual.colorModel.componentSize}"
             }
 
             !actual.colorModel.componentSize.all { it == 8 } -> {
-                "Component size is not 8 bits"
+                "Component size is not 8 bits: ${actual.colorModel.componentSize}"
             }
 
             else -> null
@@ -92,15 +84,16 @@ public data class ImageFormat(
         actual: BufferedImage,
         expected: BufferedImage,
     ): Double {
-        val hasAlpha = expected.colorModel.hasAlpha()
+        val actualHasAlpha = actual.colorModel.hasAlpha()
+        val expectedHasAlpha = expected.colorModel.hasAlpha()
         val pixelDeltas = AtomicLong()
         // Launch a coroutine per line, for parallelism
         runBlocking(Dispatchers.Default) {
             repeat(actual.height) { y ->
                 launch {
                     repeat(actual.width) { x ->
-                        val actualColor = Color(actual.getRGB(x, y), hasAlpha)
-                        val expectedColor = Color(expected.getRGB(x, y), hasAlpha)
+                        val actualColor = Color(actual.getRGB(x, y), actualHasAlpha)
+                        val expectedColor = Color(expected.getRGB(x, y), expectedHasAlpha)
                         val pixelDelta = getPixelDelta(actualColor, expectedColor)
                         if (pixelDelta > 0) {
                             pixelDeltas.addAndGet(pixelDelta.toLong())
