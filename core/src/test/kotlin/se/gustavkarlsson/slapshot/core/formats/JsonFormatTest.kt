@@ -12,8 +12,6 @@ import strikt.assertions.isNotNull
 
 class JsonFormatTest {
     private val format = JsonFormat()
-    private val formatNonExplicitNulls = JsonFormat(explicitNulls = false)
-    private val formatAllowAddedKeys = JsonFormat(allowAddedKeys = true)
 
     @Test
     fun `test values passing`() {
@@ -34,8 +32,12 @@ class JsonFormatTest {
     fun `test values failing`() {
         val table =
             listOf(
-                "foo" to "bar",
+                "\"foo\"" to "\"bar\"",
+                "5" to "5.0",
                 "true" to "5",
+                "true" to "\"true\"",
+                "5" to "\"5\"",
+                "null" to "\"null\"",
                 """{ "keyA": true }""" to """{ "keyA": false }""",
                 """{ "keyA": true }""" to """{ "keyA": 5 }""",
                 """{ "keyA": true }""" to """{  }""",
@@ -48,24 +50,42 @@ class JsonFormatTest {
         tableTestValuesFailing(table, format)
     }
 
-    @Test
-    fun `test non-explicit nulls`() {
-        val table =
-            listOf(
-                """{}""" to """{ "keyA": null }""",
-            )
+    private val invalidJsonTable =
+        listOf(
+            "",
+            "[",
+            "]",
+            "[}",
+            "\"",
+            ",",
+            """{ test: true }""",
+            """{ "test: true }""",
+            """{ "test" true }""",
+            """{ "test": }""",
+            """{ "test": true, }""",
+            "0.0.1",
+            "yes",
+            "no",
+            "1a",
+            "{[}]",
+            "[,]",
+            "[true,]",
+            "[,true]",
+            "-Infinity",
+            "+Infinity",
+            "Infinity",
+            "NaN",
+            "foo",
+        )
 
-        tableTestValuesPassing(table, formatNonExplicitNulls)
+    @Test
+    fun `deserialization failures`() {
+        tableTestDeserializationFailure(invalidJsonTable, format)
     }
 
     @Test
-    fun `test allow added keys`() {
-        val table =
-            listOf(
-                """{ "keyA": "added" }""" to """{}""",
-            )
-
-        tableTestValuesPassing(table, formatAllowAddedKeys)
+    fun `serialization failures`() {
+        tableTestSerializationFailure(invalidJsonTable, format)
     }
 
     @Test
@@ -121,6 +141,6 @@ class JsonFormatTest {
         val error = format.test(actualJsonString, expectedJsonString)
         expectThat(error)
             .isNotNull()
-            .contains("\$.keyA[1].keyB")
+            .contains("$.keyA[1].keyB")
     }
 }

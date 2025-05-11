@@ -8,8 +8,17 @@ public data class DoubleFormat(
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<Double> {
     init {
-        require(tolerance >= 0.0 && !tolerance.isNaN()) {
+        require(tolerance >= 0.0) {
             "tolerance must be non-negative but was: <$tolerance>"
+        }
+        require(!tolerance.isNaN()) {
+            "tolerance may not be NaN"
+        }
+        require(tolerance != Double.POSITIVE_INFINITY) {
+            "tolerance may not be positive infinity"
+        }
+        require(tolerance != Double.NEGATIVE_INFINITY) {
+            "tolerance may not be negative infinity"
         }
     }
 
@@ -20,6 +29,7 @@ public data class DoubleFormat(
         return when {
             expected == actual -> null
             tolerance == 0.0 -> "expected: <$expected> but was: <$actual>"
+            actual.isNaN() || expected.isNaN() -> "expected: <$expected> or actual: <$actual> was NaN"
             abs(expected - actual) > tolerance -> "expected: <$expected> within a tolerance of <$tolerance> but was: <$actual>"
             else -> null
         }

@@ -4,10 +4,10 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.longOrNull
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
@@ -19,17 +19,15 @@ private val json by lazy {
 }
 
 public data class JsonFormat(
-    val allowAddedKeys: Boolean = false,
-    val explicitNulls: Boolean = true,
     override val fileExtension: String = "json",
 ) : SnapshotFormat<String> {
     override fun test(
         actual: String,
         expected: String,
     ): String? {
-        val expectedJson = json.decodeFromString<JsonElement>(expected)
         val actualJson = json.decodeFromString<JsonElement>(actual)
-        val diffs = diffElement(JsonPath.ROOT, expectedJson, actualJson)
+        val expectedJson = json.decodeFromString<JsonElement>(expected)
+        val diffs = diffElement(JsonPath.ROOT, actualJson, expectedJson)
         return if (diffs.isNotEmpty()) {
             val diffLines = diffs.joinToString(separator = "\n") { "- $it" }
             "Found ${diffs.size} differences:\n$diffLines"
@@ -40,29 +38,27 @@ public data class JsonFormat(
 
     private fun diffElement(
         path: JsonPath,
-        expected: JsonElement,
         actual: JsonElement,
+        expected: JsonElement,
     ): List<String> {
-        diffType(path, expected, actual).let { typeDiff ->
-            if (typeDiff != null) {
-                return listOf(typeDiff)
-            }
+        diffType(path, actual, expected)?.let { typeDiff ->
+            return listOf(typeDiff)
         }
-        return when (expected) {
-            is JsonPrimitive -> diffPrimitive(path, expected, actual as JsonPrimitive)
-            is JsonObject -> diffObject(path, expected, actual as JsonObject)
-            is JsonArray -> diffArray(path, expected, actual as JsonArray)
+        return when (actual) {
+            is JsonPrimitive -> diffPrimitive(path, actual, expected as JsonPrimitive)
+            is JsonObject -> diffObject(path, actual, expected as JsonObject)
+            is JsonArray -> diffArray(path, actual, expected as JsonArray)
         }
     }
 
     private fun diffType(
         path: JsonPath,
-        expected: JsonElement,
         actual: JsonElement,
+        expected: JsonElement,
     ): String? {
-        val expectedType = expected.typeName()
         val actualType = actual.typeName()
-        return if (expectedType != actualType) {
+        val expectedType = expected.typeName()
+        return if (actualType != expectedType) {
             "Expected $path to be a <$expectedType> but it was a <$actualType>"
         } else {
             null
@@ -75,10 +71,12 @@ public data class JsonFormat(
             is JsonArray -> "array"
             is JsonPrimitive -> {
                 when {
+                    contentOrNull == null -> "null"
                     isString -> "string"
                     booleanOrNull != null -> "boolean"
-                    (longOrNull ?: doubleOrNull) != null -> "number"
-                    else -> "null"
+                    longOrNull != null -> "number"
+                    doubleOrNull != null -> "number"
+                    else -> throw IllegalArgumentException("Unsupported json primitive: $this")
                 }
             }
         }
@@ -86,11 +84,11 @@ public data class JsonFormat(
 
     private fun diffPrimitive(
         path: JsonPath,
-        expected: JsonPrimitive,
         actual: JsonPrimitive,
+        expected: JsonPrimitive,
     ): List<String> {
-        return if (expected.content != actual.content) {
-            listOf("Expected $path to be <${expected.content}> but it was <${actual.content}>")
+        return if (actual != expected) {
+            listOf("Expected $path to be <$expected> but it was <$actual>")
         } else {
             emptyList()
         }
@@ -98,31 +96,22 @@ public data class JsonFormat(
 
     private fun diffObject(
         path: JsonPath,
-        expected: JsonObject,
         actual: JsonObject,
+        expected: JsonObject,
     ): List<String> {
         return buildList {
-            addAll(diffMissingKeys(path, expected, actual))
-            if (!allowAddedKeys) {
-                addAll(diffAddedKeys(path, expected, actual))
-            }
-            addAll(diffIntersectingKeys(path, expected, actual))
+            addAll(diffMissingKeys(path, actual, expected))
+            addAll(diffAddedKeys(path, actual, expected))
+            addAll(diffIntersectingKeys(path, actual, expected))
         }
     }
 
     private fun diffMissingKeys(
         path: JsonPath,
-        expected: JsonObject,
         actual: JsonObject,
+        expected: JsonObject,
     ): List<String> {
-        val expectedKeys =
-            if (explicitNulls) {
-                expected.keys
-            } else {
-                // Only expect keys where the value is not null
-                expected.filterValues { it !is JsonNull }.keys
-            }
-        val missingKeys = expectedKeys - actual.keys
+        val missingKeys = expected.keys - actual.keys
         return missingKeys.map { key ->
             val keyPath = path.addKey(key)
             "Expected an element at $keyPath"
@@ -131,8 +120,8 @@ public data class JsonFormat(
 
     private fun diffAddedKeys(
         path: JsonPath,
-        expected: JsonObject,
         actual: JsonObject,
+        expected: JsonObject,
     ): List<String> {
         val addedKeys = actual.keys - expected.keys
         return addedKeys.map { key ->
@@ -143,29 +132,29 @@ public data class JsonFormat(
 
     private fun diffIntersectingKeys(
         path: JsonPath,
-        expected: JsonObject,
         actual: JsonObject,
+        expected: JsonObject,
     ): List<String> {
         val intersectingKeys = actual.keys intersect expected.keys
         return intersectingKeys.flatMap { key ->
             val keyPath = path.addKey(key)
-            diffElement(keyPath, expected.getValue(key), actual.getValue(key))
+            diffElement(keyPath, actual.getValue(key), expected.getValue(key))
         }
     }
 
     private fun diffArray(
         path: JsonPath,
-        expected: JsonArray,
         actual: JsonArray,
+        expected: JsonArray,
     ): List<String> {
         val contentDiffs =
-            expected.zip(actual).flatMapIndexed { index, (expectedElement, actualElement) ->
+            actual.zip(expected).flatMapIndexed { index, (actualElement, expectedElement) ->
                 val indexPath = path.addIndex(index)
-                diffElement(indexPath, expectedElement, actualElement)
+                diffElement(indexPath, actualElement, expectedElement)
             }
         val sizeDiff =
             buildList {
-                if (expected.size != actual.size) {
+                if (actual.size != expected.size) {
                     add("Expected $path to have a length of <${expected.size}> but it had a length of <${actual.size}>")
                 }
             }
@@ -173,17 +162,16 @@ public data class JsonFormat(
     }
 
     override fun deserialize(bytes: ByteArray): String {
-        return bytes.decodeToString()
+        val jsonElement = json.decodeFromString<JsonElement>(bytes.decodeToString())
+        jsonElement.typeName() // Used to validate the type
+        return json.encodeToString(jsonElement)
     }
 
     override fun serialize(value: String): ByteArray {
-        val formatted = json.format(value)
+        val jsonElement = json.decodeFromString<JsonElement>(value)
+        jsonElement.typeName() // Used to validate the type
+        val formatted = json.encodeToString(jsonElement)
         return formatted.encodeToByteArray()
-    }
-
-    private fun Json.format(value: String): String {
-        val jsonElement = decodeFromString<JsonElement>(value)
-        return encodeToString(jsonElement)
     }
 }
 
