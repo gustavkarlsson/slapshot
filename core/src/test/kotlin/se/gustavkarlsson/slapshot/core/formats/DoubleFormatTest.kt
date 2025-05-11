@@ -18,11 +18,27 @@ class DoubleFormatTest {
     }
 
     @Test
+    fun `Negative infinity tolerance`() {
+        expectThrows<IllegalArgumentException> { DoubleFormat(tolerance = Double.NEGATIVE_INFINITY) }
+    }
+
+    @Test
+    fun `Positive infinity tolerance`() {
+        expectThrows<IllegalArgumentException> { DoubleFormat(tolerance = Double.POSITIVE_INFINITY) }
+    }
+
+    @Test
     fun `test values passing`() {
         val table =
             listOf(
                 0.0 to 0.0,
                 2.4 to 2.4,
+                1.0 / 3 to 1.0 / 3,
+                0.0 to -0.0,
+                Double.MIN_VALUE to Double.MIN_VALUE,
+                Double.MAX_VALUE to Double.MAX_VALUE,
+                Double.NEGATIVE_INFINITY to Double.NEGATIVE_INFINITY,
+                Double.POSITIVE_INFINITY to Double.POSITIVE_INFINITY,
             )
 
         tableTestValuesPassing(table, format)
@@ -36,6 +52,7 @@ class DoubleFormatTest {
                 0.0 to -0.05,
                 0.0 to 0.1,
                 0.0 to -0.1,
+                0.0 to Double.MIN_VALUE,
             )
 
         tableTestValuesPassing(table, formatWithTolerance)
@@ -49,9 +66,28 @@ class DoubleFormatTest {
                 0.0 to -0.05,
                 0.0 to 0.1,
                 0.0 to -0.1,
+                0.0 to Double.NEGATIVE_INFINITY,
+                0.0 to Double.POSITIVE_INFINITY,
+                0.0 to Double.NaN,
+                Double.NaN to Double.NaN, // NaN never equals anything
             )
 
         tableTestValuesFailing(table, format)
+    }
+
+    @Test
+    fun `test values failing with tolerance`() {
+        val table =
+            listOf(
+                0.0 to 0.11,
+                0.0 to -0.11,
+                0.0 to Double.MAX_VALUE,
+                0.0 to Double.NEGATIVE_INFINITY,
+                0.0 to Double.POSITIVE_INFINITY,
+                0.0 to Double.NaN,
+            )
+
+        tableTestValuesFailing(table, formatWithTolerance)
     }
 
     @Test
