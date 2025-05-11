@@ -69,7 +69,8 @@ class DoubleFormatTest {
                 0.0 to Double.NEGATIVE_INFINITY,
                 0.0 to Double.POSITIVE_INFINITY,
                 0.0 to Double.NaN,
-                Double.NaN to Double.NaN, // NaN never equals anything
+                // NaN never equals anything
+                Double.NaN to Double.NaN,
             )
 
         tableTestValuesFailing(table, format)

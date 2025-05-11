@@ -94,7 +94,6 @@ public data class JsonFormat(
         }
     }
 
-
     private fun diffObject(
         path: JsonPath,
         actual: JsonObject,
@@ -174,7 +173,6 @@ public data class JsonFormat(
         val formatted = json.encodeToString(jsonElement)
         return formatted.encodeToByteArray()
     }
-
 }
 
 @JvmInline
