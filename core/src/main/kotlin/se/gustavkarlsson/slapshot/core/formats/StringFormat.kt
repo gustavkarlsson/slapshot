@@ -3,8 +3,17 @@ package se.gustavkarlsson.slapshot.core.formats
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 import java.nio.charset.Charset
 
+/**
+ * A snapshot format for String values.
+ */
 public data class StringFormat(
+    /**
+     * Determines whether the strings should be trimmed before comparison.
+     */
     val trim: Boolean = false,
+    /**
+     * The character set to use for encoding and decoding the strings.
+     */
     val charset: Charset = Charsets.UTF_8,
     override val fileExtension: String = "txt",
 ) : SnapshotFormat<String> {

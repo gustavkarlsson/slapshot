@@ -23,6 +23,13 @@ private const val ACTION_VALUE_COMPARE_ONLY = "compareOnly"
 private const val ACTION_VALUE_COMPARE_AND_ADD = "compareAndAdd"
 private const val ACTION_VALUE_OVERWRITE = "overwrite"
 
+/**
+ * Gradle plugin for configuring and managing snapshot testing using Slapshot.
+ *
+ * This plugin integrates with a project's test lifecycle, allowing for automated handling
+ * of snapshot generation, comparison, and validation. It relies on a test framework,
+ * such as JUnit4 or JUnit5, as well as a snapshot handling action defined via the plugin's configuration.
+ */
 public class SlapshotPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val extension = project.createExtension()
@@ -129,7 +136,7 @@ private fun Project.getSnapshotRootDir(extension: SlapshotPluginExtension): File
         File(property)
     } else {
         logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ROOT_DIR from extension")
-        File(extension.snapshotRootDir.get().toString())
+        file(extension.snapshotRootDir.get())
     }
 }
 

@@ -5,11 +5,38 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.ParameterContext
 import org.junit.jupiter.api.extension.ParameterResolver
 import se.gustavkarlsson.slapshot.core.SnapshotContext
+import se.gustavkarlsson.slapshot.core.Snapshotter
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
 import java.util.Optional
 
+/**
+ * Extension used to enable snapshot testing in JUnit 5 Jupiter.
+ *
+ * Extend a test class with this and inject a [JUnit5SnapshotContext] to get started.
+ * The context can then be used to create [Snapshotter] instances that are used in tests.
+ *
+ * Example:
+ *  ```
+ * @ExtendWith(SnapshotExtension::class)
+ * class MyTests {
+ *     private lateinit var snapshotter: Snapshotter<String>
+ *
+ *     @BeforeEach
+ *     fun initSnapshotContext(snapshotContext: JUnit5SnapshotContext) {
+ *         val format = StringFormat()
+ *         snapshotter = snapshotContext.createSnapshotter(format)
+ *     }
+ *
+ *     @Test
+ *     fun `test string`() {
+ *         val result = "foo" + "bar"
+ *         snapshotter.snapshot(result)
+ *     }
+ * }
+ *  ```
+ */
 public class SnapshotExtension : ParameterResolver {
     override fun supportsParameter(
         parameterContext: ParameterContext,
