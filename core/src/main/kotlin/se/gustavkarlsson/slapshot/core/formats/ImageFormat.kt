@@ -12,14 +12,30 @@ import javax.imageio.ImageIO
 import kotlin.math.abs
 
 // TODO Add tests
+
+/**
+ * A snapshot format for handling images.
+ *
+ * When comparing snapshots, the value of every pixel is compared to produce a total difference,
+ * and if the total difference is greater than [tolerance], it's considered a mismatch.
+ *
+ * The comparison is straightforward and compares every pixel's respective color values.
+ */
 public data class ImageFormat(
+    /**
+     * How different the images may be, from 0.0 to 1.0, where 0.0 means every pixel must be an exact match,
+     * and 1.0 means the images are 100% different.
+     */
     val tolerance: Double = 0.0,
     override val fileExtension: String = "bmp",
+    /**
+     * Specifies the file format for encoding the images. See [ImageIO] for reference.
+     */
     val fileFormat: String = fileExtension,
 ) : SnapshotFormat<BufferedImage> {
     init {
-        require(tolerance >= 0.0 && !tolerance.isNaN()) {
-            "tolerance must be non-negative but was: <$tolerance>"
+        require(tolerance in 0.0..1.0) {
+            "tolerance must be 0..1: <$tolerance>"
         }
     }
 
@@ -27,8 +43,8 @@ public data class ImageFormat(
         actual: BufferedImage,
         expected: BufferedImage,
     ): String? {
-        validate(expected, actual)?.let { error -> return error }
-        val difference = getDifference(expected, actual)
+        validate(actual, expected)?.let { error -> return error }
+        val difference = getDifference(actual, expected)
         return if (difference > tolerance) {
             "Images differ by $difference"
         } else {
@@ -37,35 +53,35 @@ public data class ImageFormat(
     }
 
     private fun validate(
-        expected: BufferedImage,
         actual: BufferedImage,
+        expected: BufferedImage,
     ): String? =
         when {
-            expected.width != actual.width || expected.height != actual.height -> {
+            actual.width != expected.width || actual.height != expected.height -> {
                 "Images have different dimensions!"
             }
 
-            expected.colorModel.transferType != actual.colorModel.transferType -> {
+            actual.colorModel.transferType != expected.colorModel.transferType -> {
                 "Images have different transfer type"
             }
 
-            expected.colorModel.colorSpace != actual.colorModel.colorSpace -> {
+            actual.colorModel.colorSpace != expected.colorModel.colorSpace -> {
                 "Images have different color space!"
             }
 
-            expected.colorModel.transparency != actual.colorModel.transparency -> {
+            actual.colorModel.transparency != expected.colorModel.transparency -> {
                 "Images have different transparency type"
             }
 
-            expected.colorModel.isAlphaPremultiplied != actual.colorModel.isAlphaPremultiplied -> {
+            actual.colorModel.isAlphaPremultiplied != expected.colorModel.isAlphaPremultiplied -> {
                 "Images have different values for isAlphaPremultiplied"
             }
 
-            !expected.colorModel.componentSize.contentEquals(actual.colorModel.componentSize) -> {
+            !actual.colorModel.componentSize.contentEquals(expected.colorModel.componentSize) -> {
                 "Images have different component sizes! Alpha missing?"
             }
 
-            !expected.colorModel.componentSize.all { it == 8 } -> {
+            !actual.colorModel.componentSize.all { it == 8 } -> {
                 "Component size is not 8 bits"
             }
 
@@ -73,19 +89,19 @@ public data class ImageFormat(
         }
 
     private fun getDifference(
-        expected: BufferedImage,
         actual: BufferedImage,
+        expected: BufferedImage,
     ): Double {
         val hasAlpha = expected.colorModel.hasAlpha()
         val pixelDeltas = AtomicLong()
         // Launch a coroutine per line, for parallelism
         runBlocking(Dispatchers.Default) {
-            repeat(expected.height) { y ->
+            repeat(actual.height) { y ->
                 launch {
-                    repeat(expected.width) { x ->
-                        val expectedColor = Color(expected.getRGB(x, y), hasAlpha)
+                    repeat(actual.width) { x ->
                         val actualColor = Color(actual.getRGB(x, y), hasAlpha)
-                        val pixelDelta = getPixelDelta(expectedColor, actualColor)
+                        val expectedColor = Color(expected.getRGB(x, y), hasAlpha)
+                        val pixelDelta = getPixelDelta(actualColor, expectedColor)
                         if (pixelDelta > 0) {
                             pixelDeltas.addAndGet(pixelDelta.toLong())
                         }
@@ -93,20 +109,20 @@ public data class ImageFormat(
                 }
             }
         }
-        val pixelCount = expected.width * expected.height
-        val componentsPerPixel = expected.colorModel.numComponents
+        val pixelCount = actual.width * actual.height
+        val componentsPerPixel = actual.colorModel.numComponents
         val maxPossibleDelta = pixelCount.toLong() * componentsPerPixel * 255
         return pixelDeltas.get().toDouble() / maxPossibleDelta
     }
 
     private fun getPixelDelta(
-        expectedColor: Color,
         actualColor: Color,
+        expectedColor: Color,
     ): Int {
-        val redDelta = abs(expectedColor.red - actualColor.red)
-        val greenDelta = abs(expectedColor.green - actualColor.green)
-        val blueDelta = abs(expectedColor.blue - actualColor.blue)
-        val alphaDelta = abs(expectedColor.alpha - actualColor.alpha)
+        val redDelta = abs(actualColor.red - expectedColor.red)
+        val greenDelta = abs(actualColor.green - expectedColor.green)
+        val blueDelta = abs(actualColor.blue - expectedColor.blue)
+        val alphaDelta = abs(actualColor.alpha - expectedColor.alpha)
         return redDelta + greenDelta + blueDelta + alphaDelta
     }
 
