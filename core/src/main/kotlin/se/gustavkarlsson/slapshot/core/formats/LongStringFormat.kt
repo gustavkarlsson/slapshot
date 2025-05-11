@@ -50,7 +50,7 @@ public data class LongStringFormat(
         val differingExpected = expected.drop(commonPrefixLength).dropLast(commonSuffixLength).take(diffLengthToPrint)
         val differingActual = actual.drop(commonPrefixLength).dropLast(commonSuffixLength).take(diffLengthToPrint)
         return "Strings differ at ${expected.positionOf(commonPrefixLength)}. " +
-                "Expected: <$differingExpected> but was: <$differingActual>"
+            "Expected: <$differingExpected> but was: <$differingActual>"
     }
 
     private fun String.positionOf(index: Int): String {

@@ -12,7 +12,6 @@ import java.nio.file.Paths
  * @param TI The type of test information required for resolving snapshot file paths.
  */
 public interface SnapshotContext<TI> {
-
     /**
      * Creates a new snapshotter configured with the specified format and optional overrides.
      *

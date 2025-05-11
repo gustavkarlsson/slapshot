@@ -9,7 +9,6 @@ package se.gustavkarlsson.slapshot.core
  * @param T The type of data to be captured in the snapshot.
  */
 public fun interface Snapshotter<T> {
-
     /**
      * Captures a snapshot of the provided data.
      *

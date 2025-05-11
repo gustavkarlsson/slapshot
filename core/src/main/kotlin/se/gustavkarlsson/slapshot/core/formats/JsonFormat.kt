@@ -12,9 +12,10 @@ import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.longOrNull
 import se.gustavkarlsson.slapshot.core.SnapshotFormat
 
-private val json = Json {
-    prettyPrint = true
-}
+private val json =
+    Json {
+        prettyPrint = true
+    }
 
 /**
  * A snapshot format for comparing and storing JSON data.
