@@ -65,7 +65,7 @@ public class DefaultSnapshotter<T, TI>(
                 StandardOpenOption.TRUNCATE_EXISTING,
             )
         writeSnapshot(file, format, data, *overwriteOptions)
-        onFail("Overwrote existing snapshot: '$file'")
+        onFail("Overwrote existing snapshot: '$file'") // FIXME should this fail?
     }
 
     private fun <T, F : SnapshotFormat<T>> compareSnapshot(
