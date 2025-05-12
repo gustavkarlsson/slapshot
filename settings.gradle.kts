@@ -13,4 +13,5 @@ include(
     "slapshot-junit4",
     "slapshot-junit5",
     "slapshot-plugin",
+    "slapshot-bom",
 )
