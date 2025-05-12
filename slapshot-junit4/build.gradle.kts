@@ -14,7 +14,7 @@ group = extra["mavenGroup"]!!
 version = findProperty("releaseVersion") as String
 
 dependencies {
-    implementation(project(":core"))
+    implementation(project(":slapshot-core"))
     implementation(libs.junit.four)
 }
 
