@@ -77,14 +77,15 @@ private fun Project.getDefaultSnapshotRootDir(): File {
 private fun Project.addDependencies(testFramework: Property<TestFramework>) {
     val releaseVersion = readReleaseVersion()
     dependencies {
-        add("testImplementation", "se.gustavkarlsson.slapshot:slapshot-core:$releaseVersion")
+        add("implementation", platform("se.gustavkarlsson.slapshot:slapshot-bom:$releaseVersion"))
+        add("testImplementation", "se.gustavkarlsson.slapshot:slapshot-core") // Version from bom
         // Add this lazily, so the framework can be overridden before the dependency is added.
         val testFrameworkDependency =
             testFramework.map { testFramework ->
                 @Suppress("WHEN_ENUM_CAN_BE_NULL_IN_JAVA")
                 when (testFramework) {
-                    TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:slapshot-junit4:$releaseVersion"
-                    TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:slapshot-junit5:$releaseVersion"
+                    TestFramework.JUnit4 -> "se.gustavkarlsson.slapshot:slapshot-junit4" // Version from bom
+                    TestFramework.JUnit5 -> "se.gustavkarlsson.slapshot:slapshot-junit5" // Version from bom
                 }
             }
         addProvider("testImplementation", testFrameworkDependency)
@@ -92,9 +93,9 @@ private fun Project.addDependencies(testFramework: Property<TestFramework>) {
 }
 
 private fun readReleaseVersion(): String =
-    Thread.currentThread().contextClassLoader.getResourceAsStream("plugin.properties").use {
+    Thread.currentThread().contextClassLoader.getResourceAsStream("plugin.properties").use { resourceStream ->
         Properties().run {
-            load(it)
+            load(resourceStream)
             getProperty("releaseVersion") as String
         }
     }
