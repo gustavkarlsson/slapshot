@@ -5,7 +5,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
-import se.gustavkarlsson.slapshot.core.formats.LongFormat
+import se.gustavkarlsson.slapshot.core.serializers.LongSerializer
 
 @RunWith(Parameterized::class)
 class ParameterizedTests(private val a: Long, private val b: Long) {
@@ -23,11 +23,9 @@ class ParameterizedTests(private val a: Long, private val b: Long) {
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
 
-    private val longFormat = LongFormat()
-
     @Test
     fun `test addition`() {
         val result = a + b
-        snapshotContext.createSnapshotter(longFormat).snapshot(result)
+        snapshotContext.createSnapshotter(LongSerializer).snapshot(result)
     }
 }

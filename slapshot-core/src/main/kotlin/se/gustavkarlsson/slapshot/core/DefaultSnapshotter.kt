@@ -14,12 +14,13 @@ public class DefaultSnapshotter<T, TI>(
     private val snapshotFileResolver: SnapshotFileResolver<TI>,
     private val rootDirectory: Path,
     private val getTestInfo: () -> TI,
-    private val format: SnapshotFormat<T>,
+    private val serializer: Serializer<T>,
+    private val tester: Tester<T>,
     private val action: SnapshotAction,
     private val onFail: (message: String) -> Unit,
 ) : Snapshotter<T> {
     override fun snapshot(data: T) {
-        val file = snapshotFileResolver.resolve(rootDirectory, getTestInfo(), format.fileExtension)
+        val file = snapshotFileResolver.resolve(rootDirectory, getTestInfo(), serializer.fileExtension)
         when (action) {
             SnapshotAction.CompareOnly -> compareOnly(file, data)
             SnapshotAction.CompareAndAdd -> compareAndAdd(file, data)
@@ -34,7 +35,7 @@ public class DefaultSnapshotter<T, TI>(
         if (file.notExists()) {
             onFail("Snapshot not found: '$file'")
         }
-        compareSnapshot(file, format, data)
+        compareSnapshot(file, data)
     }
 
     private fun compareAndAdd(
@@ -42,14 +43,14 @@ public class DefaultSnapshotter<T, TI>(
         data: T,
     ) {
         if (file.exists()) {
-            compareSnapshot(file, format, data)
+            compareSnapshot(file, data)
         } else {
             val createNewOptions =
                 arrayOf(
                     StandardOpenOption.CREATE_NEW,
                     StandardOpenOption.WRITE,
                 )
-            writeSnapshot(file, format, data, *createNewOptions)
+            writeSnapshot(file, data, *createNewOptions)
             onFail("Missing snapshot created: '$file'")
         }
     }
@@ -64,30 +65,28 @@ public class DefaultSnapshotter<T, TI>(
                 StandardOpenOption.WRITE,
                 StandardOpenOption.TRUNCATE_EXISTING,
             )
-        writeSnapshot(file, format, data, *overwriteOptions)
+        writeSnapshot(file, data, *overwriteOptions)
         onFail("Overwrote existing snapshot: '$file'") // FIXME should this fail?
     }
 
-    private fun <T, F : SnapshotFormat<T>> compareSnapshot(
+    private fun compareSnapshot(
         file: Path,
-        format: F,
         data: T,
     ) {
         val bytes = file.readBytes()
-        val old = format.deserialize(bytes)
-        val diffString = format.test(old, data)
+        val old = serializer.deserialize(bytes)
+        val diffString = tester.test(old, data)
         if (diffString != null) {
             onFail("Result did not match stored snapshot: '$file':\n$diffString")
         }
     }
 
-    private fun <T, F : SnapshotFormat<T>> writeSnapshot(
+    private fun writeSnapshot(
         file: Path,
-        format: F,
         data: T,
         vararg options: OpenOption,
     ) {
-        val bytes = format.serialize(data)
+        val bytes = serializer.serialize(data)
         file.parent.createDirectories()
         file.writeBytes(bytes, *options)
     }

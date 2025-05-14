@@ -1,6 +1,5 @@
-package se.gustavkarlsson.slapshot.core.formats
+package se.gustavkarlsson.slapshot.core.testers
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -10,22 +9,19 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.longOrNull
-import se.gustavkarlsson.slapshot.core.SnapshotFormat
-
-private val json =
-    Json {
-        prettyPrint = true
-    }
+import se.gustavkarlsson.slapshot.core.Tester
 
 /**
- * A snapshot format for comparing and storing JSON data.
+ * A test utility for comparing JSON structures.
  *
- * Snapshots are pretty printed, and comparison errors are presented in a JSONPath format to make them easy to
- * find in large snapshots.
+ * It reports differences when the JSON structures do not match, including mismatches in types, values, keys,
+ * or array lengths.
+ *
+ * Comparison errors are presented in a JSONPath format to make them easy to find in large snapshots.
  */
-public data class JsonFormat(
-    override val fileExtension: String = "json",
-) : SnapshotFormat<String> {
+public data object JsonTester : Tester<String> {
+    private val json = Json
+
     override fun test(
         actual: String,
         expected: String,
@@ -164,19 +160,6 @@ public data class JsonFormat(
                 }
             }
         return contentDiffs + sizeDiff
-    }
-
-    override fun deserialize(bytes: ByteArray): String {
-        val jsonElement = json.decodeFromString<JsonElement>(bytes.decodeToString())
-        jsonElement.typeName() // Used to validate the type
-        return json.encodeToString(jsonElement)
-    }
-
-    override fun serialize(value: String): ByteArray {
-        val jsonElement = json.decodeFromString<JsonElement>(value)
-        jsonElement.typeName() // Used to validate the type
-        val formatted = json.encodeToString(jsonElement)
-        return formatted.encodeToByteArray()
     }
 }
 

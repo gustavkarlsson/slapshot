@@ -2,48 +2,42 @@ package se.gustavkarlsson.slapshot.junit4
 
 import org.junit.Rule
 import org.junit.Test
-import se.gustavkarlsson.slapshot.core.formats.AnyToStringFormat
-import se.gustavkarlsson.slapshot.core.formats.BooleanFormat
-import se.gustavkarlsson.slapshot.core.formats.DoubleFormat
-import se.gustavkarlsson.slapshot.core.formats.JsonFormat
-import se.gustavkarlsson.slapshot.core.formats.LongFormat
-import se.gustavkarlsson.slapshot.core.formats.LongStringFormat
-import se.gustavkarlsson.slapshot.core.formats.StringFormat
+import se.gustavkarlsson.slapshot.core.serializers.BooleanSerializer
+import se.gustavkarlsson.slapshot.core.serializers.DoubleSerializer
+import se.gustavkarlsson.slapshot.core.serializers.JsonSerializer
+import se.gustavkarlsson.slapshot.core.serializers.LongSerializer
+import se.gustavkarlsson.slapshot.core.serializers.StringSerializer
+import se.gustavkarlsson.slapshot.core.testers.DoubleWithToleranceTester
+import se.gustavkarlsson.slapshot.core.testers.JsonTester
+import se.gustavkarlsson.slapshot.core.testers.LongStringTester
 
 class SimpleTests {
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
 
-    private val jsonFormat = JsonFormat()
-
     @Test
     fun `test string`() {
-        snapshotContext.createSnapshotter(StringFormat(trim = true)).snapshot("I am data")
+        snapshotContext.createSnapshotter(StringSerializer()).snapshot("I am data")
     }
 
     @Test
     fun `test boolean`() {
-        snapshotContext.createSnapshotter(BooleanFormat()).snapshot(true)
+        snapshotContext.createSnapshotter(BooleanSerializer).snapshot(true)
     }
 
     @Test
     fun `test long`() {
-        snapshotContext.createSnapshotter(LongFormat()).snapshot(5)
+        snapshotContext.createSnapshotter(LongSerializer).snapshot(5)
     }
 
     @Test
     fun `test double`() {
-        snapshotContext.createSnapshotter(DoubleFormat()).snapshot(5.7)
+        snapshotContext.createSnapshotter(DoubleSerializer).snapshot(5.7)
     }
 
     @Test
     fun `test double with tolerance`() {
-        snapshotContext.createSnapshotter(DoubleFormat(tolerance = 1.0)).snapshot(12.3)
-    }
-
-    @Test
-    fun `test any value to string`() {
-        snapshotContext.createSnapshotter(AnyToStringFormat()).snapshot(listOf(1, 2, 3))
+        snapshotContext.createSnapshotter(DoubleSerializer, DoubleWithToleranceTester(tolerance = 1.0)).snapshot(12.3)
     }
 
     @Test
@@ -59,7 +53,7 @@ class SimpleTests {
               "newNull": null
             }
             """.trimIndent()
-        snapshotContext.createSnapshotter(jsonFormat).snapshot(json)
+        snapshotContext.createSnapshotter(JsonSerializer, JsonTester).snapshot(json)
     }
 
     @Test
@@ -74,6 +68,6 @@ class SimpleTests {
             Vivamus lobortis malesuada lorem, at consectetur urna. Sed in magna ac neque eleifend consectetur.
             Donec ullamcorper erat velit, eget aliquet enim egestas non.
             """.trimIndent()
-        snapshotContext.createSnapshotter(LongStringFormat()).snapshot(json)
+        snapshotContext.createSnapshotter(StringSerializer(), LongStringTester()).snapshot(json)
     }
 }

@@ -25,8 +25,8 @@ import java.util.Optional
  *
  *     @BeforeEach
  *     fun initSnapshotContext(snapshotContext: JUnit5SnapshotContext) {
- *         val format = StringFormat()
- *         snapshotter = snapshotContext.createSnapshotter(format)
+ *         val serializer = StringSerializer()
+ *         snapshotter = snapshotContext.createSnapshotter(serializer)
  *     }
  *
  *     @Test

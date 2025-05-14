@@ -1,31 +1,9 @@
-package se.gustavkarlsson.slapshot.core.formats
+package se.gustavkarlsson.slapshot.core.serializers
 
 import org.junit.jupiter.api.Test
 
-class BooleanFormatTest {
-    private val format = BooleanFormat()
-
-    @Test
-    fun `test values passing`() {
-        val table =
-            listOf(
-                true to true,
-                false to false,
-            )
-
-        tableTestValuesPassing(table, format)
-    }
-
-    @Test
-    fun `test values failing`() {
-        val table =
-            listOf(
-                true to false,
-                false to true,
-            )
-
-        tableTestValuesFailing(table, format)
-    }
+class BooleanSerializerTest {
+    private val serializer = BooleanSerializer
 
     @Test
     fun `serialize values`() {
@@ -35,7 +13,7 @@ class BooleanFormatTest {
                 false to "false",
             )
 
-        tableTestSerialization(table, format)
+        tableTestSerialization(table, serializer)
     }
 
     @Test
@@ -52,12 +30,12 @@ class BooleanFormatTest {
                 "\n \tfalse" to false,
             )
 
-        tableTestDeserialization(table, format)
+        tableTestDeserialization(table, serializer)
     }
 
     @Test
     fun `deserialize invalid values`() {
-        val table =
+        val strings =
             listOf(
                 "yes",
                 "no",
@@ -67,6 +45,6 @@ class BooleanFormatTest {
                 "",
             )
 
-        tableTestDeserializationFailure(table, format)
+        tableTestDeserializationFailure<IllegalArgumentException>(strings, serializer)
     }
 }

@@ -1,36 +1,25 @@
-package se.gustavkarlsson.slapshot.core.formats
+package se.gustavkarlsson.slapshot.core.testers
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import se.gustavkarlsson.slapshot.core.SnapshotFormat
+import se.gustavkarlsson.slapshot.core.Tester
 import java.awt.Color
 import java.awt.image.BufferedImage
-import java.io.ByteArrayOutputStream
 import java.util.concurrent.atomic.AtomicLong
-import javax.imageio.ImageIO
 import kotlin.math.abs
 
 /**
- * A snapshot format for handling images.
- *
- * When comparing snapshots, the value of every pixel is compared to produce a total difference,
- * and if the total difference is greater than [tolerance], it's considered a mismatch.
- *
- * The comparison is straightforward and compares every pixel's respective color values.
+ * Tests image snapshots. Compares pixel by pixel and accumulates the difference to a total value (0..1),
+ * If the total difference is greater than [tolerance], it's considered a mismatch.
  */
-public data class ImageFormat(
+public data class ImageTester(
     /**
      * How different the images may be, from 0.0 to 1.0, where 0.0 means every pixel must be an exact match,
      * and 1.0 means the images are 100% different.
      */
     val tolerance: Double = 0.0,
-    override val fileExtension: String = "bmp",
-    /**
-     * Specifies the file format for encoding the images. See [ImageIO] for reference.
-     */
-    val fileFormat: String = fileExtension,
-) : SnapshotFormat<BufferedImage> {
+) : Tester<BufferedImage> {
     init {
         require(tolerance in 0.0..1.0) {
             "tolerance must be 0..1: <$tolerance>"
@@ -117,20 +106,5 @@ public data class ImageFormat(
         val blueDelta = abs(actualColor.blue - expectedColor.blue)
         val alphaDelta = abs(actualColor.alpha - expectedColor.alpha)
         return redDelta + greenDelta + blueDelta + alphaDelta
-    }
-
-    override fun deserialize(bytes: ByteArray): BufferedImage {
-        return bytes.inputStream().use { stream ->
-            ImageIO.read(stream)
-        }
-    }
-
-    override fun serialize(value: BufferedImage): ByteArray {
-        return ByteArrayOutputStream().use { stream ->
-            check(ImageIO.write(value, fileFormat, stream)) {
-                "Failed to write image to ByteArrayOutputStream"
-            }
-            stream.toByteArray()
-        }
     }
 }

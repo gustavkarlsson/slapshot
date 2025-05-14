@@ -1,5 +1,6 @@
 package se.gustavkarlsson.slapshot.core
 
+import se.gustavkarlsson.slapshot.core.testers.EqualsTester
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -13,16 +14,18 @@ import java.nio.file.Paths
  */
 public interface SnapshotContext<TI> {
     /**
-     * Creates a new snapshotter configured with the specified format and optional overrides.
+     * Creates a new snapshotter configured with the specified serializer, tester, and optional overrides.
      *
-     * @param format The snapshot format to use for serializing and deserializing test data.
+     * @param serializer Serializes/deserializes snapshots so they can be stored as files.
+     * @param tester Compares two snapshots for equality.
      * @param overrideRootDirectory An optional root directory to override the default directory for storing snapshots.
      * @param overrideSnapshotFileResolver An optional resolver to override the default logic for resolving snapshot file paths.
      * @param overrideAction An optional action to override the default behavior for handling snapshots.
      * @return A new snapshotter configured with the specified parameters.
      */
-    public fun <T, F : SnapshotFormat<T>> createSnapshotter(
-        format: F,
+    public fun <T> createSnapshotter(
+        serializer: Serializer<T>,
+        tester: Tester<T> = EqualsTester,
         overrideRootDirectory: Path? = null,
         overrideSnapshotFileResolver: SnapshotFileResolver<TI>? = null,
         overrideAction: SnapshotAction? = null,
