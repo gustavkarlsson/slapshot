@@ -6,14 +6,16 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import se.gustavkarlsson.slapshot.core.formats.AnyToStringFormat
-import se.gustavkarlsson.slapshot.core.formats.BooleanFormat
-import se.gustavkarlsson.slapshot.core.formats.DoubleFormat
-import se.gustavkarlsson.slapshot.core.formats.ImageFormat
-import se.gustavkarlsson.slapshot.core.formats.JsonFormat
-import se.gustavkarlsson.slapshot.core.formats.LongFormat
-import se.gustavkarlsson.slapshot.core.formats.LongStringFormat
-import se.gustavkarlsson.slapshot.core.formats.StringFormat
+import se.gustavkarlsson.slapshot.core.serializers.BooleanSerializer
+import se.gustavkarlsson.slapshot.core.serializers.DoubleSerializer
+import se.gustavkarlsson.slapshot.core.serializers.ImageSerializer
+import se.gustavkarlsson.slapshot.core.serializers.JsonSerializer
+import se.gustavkarlsson.slapshot.core.serializers.LongSerializer
+import se.gustavkarlsson.slapshot.core.serializers.StringSerializer
+import se.gustavkarlsson.slapshot.core.testers.DoubleWithToleranceTester
+import se.gustavkarlsson.slapshot.core.testers.ImageTester
+import se.gustavkarlsson.slapshot.core.testers.JsonTester
+import se.gustavkarlsson.slapshot.core.testers.LongStringTester
 import javax.imageio.ImageIO
 
 @ExtendWith(SnapshotExtension::class)
@@ -25,36 +27,29 @@ class Tests {
         this.snapshotContext = snapshotContext
     }
 
-    private val jsonFormat = JsonFormat()
-
     @Test
     fun `test string`() {
-        snapshotContext.createSnapshotter(StringFormat(trim = true)).snapshot("I am data")
+        snapshotContext.createSnapshotter(StringSerializer()).snapshot("I am data")
     }
 
     @Test
     fun `test boolean`() {
-        snapshotContext.createSnapshotter(BooleanFormat()).snapshot(true)
+        snapshotContext.createSnapshotter(BooleanSerializer).snapshot(true)
     }
 
     @Test
     fun `test long`() {
-        snapshotContext.createSnapshotter(LongFormat()).snapshot(5)
+        snapshotContext.createSnapshotter(LongSerializer).snapshot(5)
     }
 
     @Test
     fun `test double`() {
-        snapshotContext.createSnapshotter(DoubleFormat()).snapshot(5.7)
+        snapshotContext.createSnapshotter(DoubleSerializer).snapshot(5.7)
     }
 
     @Test
     fun `test double with tolerance`() {
-        snapshotContext.createSnapshotter(DoubleFormat(tolerance = 1.0)).snapshot(12.3)
-    }
-
-    @Test
-    fun `test any value to string`() {
-        snapshotContext.createSnapshotter(AnyToStringFormat()).snapshot(listOf(1, 2, 3))
+        snapshotContext.createSnapshotter(DoubleSerializer, DoubleWithToleranceTester(tolerance = 1.0)).snapshot(12.3)
     }
 
     @Test
@@ -70,7 +65,7 @@ class Tests {
               "newNull": null
             }
             """.trimIndent()
-        snapshotContext.createSnapshotter(jsonFormat).snapshot(json)
+        snapshotContext.createSnapshotter(JsonSerializer, JsonTester).snapshot(json)
     }
 
     @Test
@@ -85,19 +80,19 @@ class Tests {
             Vivamus lobortis malesuada lorem, at consectetur urna. Sed in magna ac neque eleifend consectetur.
             Donec ullamcorper erat velit, eget aliquet enim egestas non.
             """.trimIndent()
-        snapshotContext.createSnapshotter(LongStringFormat()).snapshot(json)
+        snapshotContext.createSnapshotter(StringSerializer(), LongStringTester()).snapshot(json)
     }
 
     @Test
     fun `test image`() {
         val image = ImageIO.read(Tests::class.java.classLoader.getResourceAsStream("image.bmp"))
-        snapshotContext.createSnapshotter(ImageFormat(tolerance = 0.02)).snapshot(image)
+        snapshotContext.createSnapshotter(ImageSerializer("bmp"), ImageTester(tolerance = 0.02)).snapshot(image)
     }
 
     @ParameterizedTest(name = "parameterized {0}")
     @ValueSource(longs = [1L, 2L])
     fun parameterized(value: Long) {
-        snapshotContext.createSnapshotter(LongFormat()).snapshot(value)
+        snapshotContext.createSnapshotter(LongSerializer).snapshot(value)
     }
 
     @Nested
@@ -112,7 +107,7 @@ class Tests {
 
         @Test
         fun `just a nested class test`() {
-            snapshotContext.createSnapshotter(StringFormat()).snapshot("bla")
+            snapshotContext.createSnapshotter(StringSerializer()).snapshot("bla")
         }
     }
 }

@@ -4,7 +4,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
 import org.junit.runner.RunWith
-import se.gustavkarlsson.slapshot.core.formats.StringFormat
+import se.gustavkarlsson.slapshot.core.serializers.StringSerializer
 
 @RunWith(Enclosed::class)
 class EnclosedTests {
@@ -14,7 +14,7 @@ class EnclosedTests {
 
         @Test
         fun `just a nested class test`() {
-            snapshotContext.createSnapshotter(StringFormat()).snapshot("bla")
+            snapshotContext.createSnapshotter(StringSerializer()).snapshot("bla")
         }
     }
 }

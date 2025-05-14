@@ -1,18 +1,19 @@
-package se.gustavkarlsson.slapshot.core.formats
+package se.gustavkarlsson.slapshot.core.testers
 
-import se.gustavkarlsson.slapshot.core.SnapshotFormat
+import se.gustavkarlsson.slapshot.core.Tester
 import kotlin.math.abs
 
 /**
- * A snapshot format for Double values, with an optional tolerance setting. Values are stored in plain text.
+ * Tests equality of double values with an optional tolerance, allowing
+ * two values to be considered equal if the absolute difference between them is within the
+ * specified tolerance.
  */
-public data class DoubleFormat(
+public data class DoubleWithToleranceTester(
     /**
      * The non-negative tolerance within which two double values are considered equal.
      */
     val tolerance: Double = 0.0,
-    override val fileExtension: String = "txt",
-) : SnapshotFormat<Double> {
+) : Tester<Double> {
     init {
         require(tolerance >= 0.0) {
             "tolerance must be non-negative but was: <$tolerance>"
@@ -39,15 +40,5 @@ public data class DoubleFormat(
             abs(expected - actual) > tolerance -> "expected: <$expected> within a tolerance of <$tolerance> but was: <$actual>"
             else -> null
         }
-    }
-
-    override fun deserialize(bytes: ByteArray): Double {
-        return bytes.decodeToString()
-            .trim()
-            .toDouble()
-    }
-
-    override fun serialize(value: Double): ByteArray {
-        return value.toString().encodeToByteArray()
     }
 }

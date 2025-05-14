@@ -27,6 +27,9 @@ tasks.test {
 
 kotlin {
     explicitApi()
+    compilerOptions {
+        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
+    }
 }
 
 mavenPublishing {
