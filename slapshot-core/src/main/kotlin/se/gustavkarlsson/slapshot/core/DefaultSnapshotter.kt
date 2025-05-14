@@ -29,35 +29,35 @@ public class DefaultSnapshotter<T, TI>(
     }
 
     private fun compareOnly(
-        file: Path,
-        data: T,
+        expectedFile: Path,
+        actual: T,
     ) {
-        if (file.notExists()) {
-            onFail("Snapshot not found: '$file'")
+        if (expectedFile.notExists()) {
+            onFail("Snapshot not found: '$expectedFile'")
         }
-        compareSnapshot(file, data)
+        compareSnapshot(expectedFile, actual)
     }
 
     private fun compareAndAdd(
-        file: Path,
-        data: T,
+        expectedFile: Path,
+        actual: T,
     ) {
-        if (file.exists()) {
-            compareSnapshot(file, data)
+        if (expectedFile.exists()) {
+            compareSnapshot(expectedFile, actual)
         } else {
             val createNewOptions =
                 arrayOf(
                     StandardOpenOption.CREATE_NEW,
                     StandardOpenOption.WRITE,
                 )
-            writeSnapshot(file, data, *createNewOptions)
-            onFail("Missing snapshot created: '$file'")
+            writeSnapshot(expectedFile, actual, *createNewOptions)
+            onFail("Missing snapshot created: '$expectedFile'")
         }
     }
 
     private fun overwrite(
         file: Path,
-        data: T,
+        newData: T,
     ) {
         val overwriteOptions =
             arrayOf(
@@ -65,19 +65,19 @@ public class DefaultSnapshotter<T, TI>(
                 StandardOpenOption.WRITE,
                 StandardOpenOption.TRUNCATE_EXISTING,
             )
-        writeSnapshot(file, data, *overwriteOptions)
+        writeSnapshot(file, newData, *overwriteOptions)
         onFail("Overwrote existing snapshot: '$file'") // FIXME should this fail?
     }
 
     private fun compareSnapshot(
-        file: Path,
-        data: T,
+        expectedFile: Path,
+        actual: T,
     ) {
-        val bytes = file.readBytes()
-        val old = serializer.deserialize(bytes)
-        val diffString = tester.test(old, data)
+        val bytes = expectedFile.readBytes()
+        val existing = serializer.deserialize(bytes)
+        val diffString = tester.test(actual, existing)
         if (diffString != null) {
-            onFail("Result did not match stored snapshot: '$file':\n$diffString")
+            onFail("Result did not match stored snapshot: '$expectedFile':\n$diffString")
         }
     }
 
