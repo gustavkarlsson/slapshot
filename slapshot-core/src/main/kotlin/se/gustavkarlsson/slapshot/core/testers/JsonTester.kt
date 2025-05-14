@@ -1,5 +1,6 @@
 package se.gustavkarlsson.slapshot.core.testers
 
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -20,7 +21,10 @@ import se.gustavkarlsson.slapshot.core.Tester
  * Comparison errors are presented in a JSONPath format to make them easy to find in large snapshots.
  */
 public data object JsonTester : Tester<String> {
-    private val json = Json
+    private val json =
+        Json {
+            prettyPrint = true
+        }
 
     override fun test(
         actual: String,
@@ -31,7 +35,14 @@ public data object JsonTester : Tester<String> {
         val diffs = diffElement(JsonPath.ROOT, actualJson, expectedJson)
         return if (diffs.isNotEmpty()) {
             val diffLines = diffs.joinToString(separator = "\n") { "- $it" }
-            "Found ${diffs.size} differences:\n$diffLines"
+            buildString {
+                appendLine("Found ${diffs.size} differences:")
+                appendLine(diffLines)
+                appendLine("Expected:")
+                appendLine(json.encodeToString(expectedJson))
+                appendLine("Actual:")
+                appendLine(json.encodeToString(actualJson))
+            }
         } else {
             null
         }
