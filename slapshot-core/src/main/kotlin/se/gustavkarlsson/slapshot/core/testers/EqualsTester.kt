@@ -3,7 +3,7 @@ package se.gustavkarlsson.slapshot.core.testers
 import se.gustavkarlsson.slapshot.core.Tester
 
 /**
- * A test utility for comparing equality between any two values. Arrays are compared based on their content.
+ * Tests equality between any two snapshots. Arrays are compared based on their content.
  */
 public data object EqualsTester : Tester<Any?> {
     override fun test(

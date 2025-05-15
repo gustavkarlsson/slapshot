@@ -1,6 +1,7 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -13,11 +14,16 @@ group = extra["mavenGroup"]!!
 version = findProperty("releaseVersion") as String
 
 dependencies {
-    implementation(libs.kotlin.coroutines)
+    implementation(project(":slapshot-core"))
+    implementation(libs.kotlin.serialization.json)
 
     testImplementation(libs.junit.jupiter.aggregator)
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.strikt)
+}
+
+tasks.withType<KotlinCompile> {
+    compilerOptions.freeCompilerArgs.add("-opt-in=se.gustavkarlsson.slapshot.core.InternalSlapshotApi")
 }
 
 tasks.test {
@@ -26,16 +32,13 @@ tasks.test {
 
 kotlin {
     explicitApi()
-    compilerOptions {
-        freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
-    }
 }
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate")))
     pom {
-        name.set("Slapshot Core")
+        name.set("Slapshot JSON")
         description.set("A snapshot testing library for Kotlin")
         inceptionYear.set("2025")
         url.set("https://github.com/gustavkarlsson/slapshot/")

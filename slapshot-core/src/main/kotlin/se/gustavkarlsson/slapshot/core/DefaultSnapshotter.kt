@@ -66,7 +66,6 @@ public class DefaultSnapshotter<T, TI>(
                 StandardOpenOption.TRUNCATE_EXISTING,
             )
         writeSnapshot(file, newData, *overwriteOptions)
-        onFail("Overwrote existing snapshot: '$file'") // FIXME should this fail?
     }
 
     private fun compareSnapshot(
@@ -77,7 +76,7 @@ public class DefaultSnapshotter<T, TI>(
         val existing = serializer.deserialize(bytes)
         val diffString = tester.test(actual, existing)
         if (diffString != null) {
-            onFail("Result did not match stored snapshot: '$expectedFile':\n$diffString")
+            onFail(diffString)
         }
     }
 

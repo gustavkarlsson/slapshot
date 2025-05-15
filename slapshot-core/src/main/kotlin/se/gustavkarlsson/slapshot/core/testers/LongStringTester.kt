@@ -3,7 +3,7 @@ package se.gustavkarlsson.slapshot.core.testers
 import se.gustavkarlsson.slapshot.core.Tester
 
 /**
- * A tester for long strings that may span multiple lines. Errors will indicate the position of the first mismatch,
+ * A tester for long string snapshots that may span multiple lines. Errors will indicate the position of the first mismatch,
  *  and the diffs will be trimmed to include only the part of the string that doesn't match.
  */
 public data class LongStringTester(
