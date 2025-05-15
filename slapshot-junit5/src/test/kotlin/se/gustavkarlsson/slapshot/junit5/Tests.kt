@@ -9,12 +9,10 @@ import org.junit.jupiter.params.provider.ValueSource
 import se.gustavkarlsson.slapshot.core.serializers.BooleanSerializer
 import se.gustavkarlsson.slapshot.core.serializers.DoubleSerializer
 import se.gustavkarlsson.slapshot.core.serializers.ImageSerializer
-import se.gustavkarlsson.slapshot.core.serializers.JsonSerializer
 import se.gustavkarlsson.slapshot.core.serializers.LongSerializer
 import se.gustavkarlsson.slapshot.core.serializers.StringSerializer
 import se.gustavkarlsson.slapshot.core.testers.DoubleWithToleranceTester
 import se.gustavkarlsson.slapshot.core.testers.ImageTester
-import se.gustavkarlsson.slapshot.core.testers.JsonTester
 import se.gustavkarlsson.slapshot.core.testers.LongStringTester
 import javax.imageio.ImageIO
 
@@ -50,22 +48,6 @@ class Tests {
     @Test
     fun `test double with tolerance`() {
         snapshotContext.createSnapshotter(DoubleSerializer, DoubleWithToleranceTester(tolerance = 1.0)).snapshot(12.3)
-    }
-
-    @Test
-    fun `test json`() {
-        val json =
-            """
-            {
-              "num": 5.0,
-              "obj": {
-                "o": [true, "str"],
-                "b": [true, "sr"]
-              },
-              "newNull": null
-            }
-            """.trimIndent()
-        snapshotContext.createSnapshotter(JsonSerializer, JsonTester).snapshot(json)
     }
 
     @Test

@@ -1,13 +1,15 @@
-package se.gustavkarlsson.slapshot.core.testers
+package se.gustavkarlsson.slapshot.json
 
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.api.expectThrows
 import strikt.assertions.contains
 import strikt.assertions.isNotNull
+import strikt.assertions.isNull
 
 class JsonTesterTest {
-    private val tester = JsonTester
+    private val tester = JsonTester()
+    private val testerJUnitStyle = JsonTester(errorStyle = JsonErrorStyle.JUnitStyle)
 
     @Test
     fun `test matching JSON strings return null`() {
@@ -28,6 +30,12 @@ class JsonTesterTest {
             )
 
         tableTestValuesPassing(table, tester)
+    }
+
+    @Test
+    fun `test reordering of object keys`() {
+        val result = tester.test("""{"a":1,"b":2}""", """{"b":2,"a":1}""")
+        expectThat(result).isNull()
     }
 
     @Test
@@ -150,12 +158,25 @@ class JsonTesterTest {
     }
 
     @Test
+    fun `test junit style error message`() {
+        val actual = """{"key":"actual"}"""
+        val expected = """{"key":"expected"}"""
+
+        val result = testerJUnitStyle.test(actual, expected)
+
+        expectThat(result).isNotNull()
+            .contains("expected: <")
+            .contains("> but was: <")
+            .contains(">")
+    }
+
+    @Test
     fun `test invalid JSON throws exception`() {
         val list =
             listOf(
+                "a",
                 "[",
                 "]",
-                "a",
                 "(",
                 ")",
                 "",
