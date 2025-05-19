@@ -1,0 +1,26 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept-Charset": [
+                "UTF-8"
+            ],
+            "Accept": [
+                "*/*"
+            ]
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Length": [
+                "13"
+            ],
+            "Content-Type": [
+                "text/plain; charset=UTF-8"
+            ]
+        },
+        "body": "Hello, World!"
+    }
+}
