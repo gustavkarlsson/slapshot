@@ -59,7 +59,7 @@ public data class ImageTester(
 
             actual.colorModel.numComponents != (expected.colorModel.numComponents) -> {
                 "Images have different numbers of components. Alpha missing?" +
-                        " Expected: ${expected.colorModel.numComponents}, actual: ${actual.colorModel.numComponents}"
+                    " Expected: ${expected.colorModel.numComponents}, actual: ${actual.colorModel.numComponents}"
             }
 
             !actual.colorModel.componentSize.all { it == 8 } -> {
