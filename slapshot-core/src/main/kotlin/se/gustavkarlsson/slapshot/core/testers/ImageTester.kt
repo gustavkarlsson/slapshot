@@ -57,9 +57,9 @@ public data class ImageTester(
                 "Images have different transparency type"
             }
 
-            !actual.colorModel.componentSize.contentEquals(expected.colorModel.componentSize) -> {
-                "Images have different component sizes. Alpha missing?" +
-                    " Expected: ${expected.colorModel.componentSize}, actual: ${actual.colorModel.componentSize}"
+            actual.colorModel.numComponents != (expected.colorModel.numComponents) -> {
+                "Images have different numbers of components. Alpha missing?" +
+                    " Expected: ${expected.colorModel.numComponents}, actual: ${actual.colorModel.numComponents}"
             }
 
             !actual.colorModel.componentSize.all { it == 8 } -> {
