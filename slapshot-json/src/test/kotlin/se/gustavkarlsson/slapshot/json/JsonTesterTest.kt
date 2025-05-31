@@ -9,7 +9,7 @@ import strikt.assertions.isNull
 
 class JsonTesterTest {
     private val tester = JsonTester()
-    private val testerJUnitStyle = JsonTester(errorStyle = JsonErrorStyle.JUnitStyle)
+    private val testerJUnitStyle = JsonTester(errorStyle = JsonErrorStyle.JUnit)
 
     @Test
     fun `test matching JSON strings return null`() {

@@ -215,7 +215,7 @@ public fun interface JsonErrorStyle {
      * Note that [JsonTester] does not care about the order of object keys, while the diff view does.
      * So you might see mismatches that are false positives.
      */
-    public data object JUnitStyle : JsonErrorStyle {
+    public data object JUnit : JsonErrorStyle {
         override fun createMessage(
             actualPretty: String,
             expectedPretty: String,
