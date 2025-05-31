@@ -16,7 +16,7 @@ version = findProperty("releaseVersion") as String
 dependencies {
     implementation(project(":slapshot-core"))
     implementation(project(":slapshot-json"))
-    compileOnly(libs.ktor.client.core)
+    compileOnly(libs.ktor.server.core)
     implementation(libs.kotlin.serialization.json)
     implementation(libs.junit.jupiter.api)
 

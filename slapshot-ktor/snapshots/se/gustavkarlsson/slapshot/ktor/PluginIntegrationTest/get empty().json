@@ -4,7 +4,9 @@
         "url": "http://localhost/",
         "headers": {
             "Accept-Charset": "UTF-8",
-            "Accept": "*/*"
+            "Accept": "*/*",
+            "User-Agent": "Ktor client",
+            "Content-Length": "0"
         }
     },
     "response": {

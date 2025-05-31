@@ -1,15 +1,19 @@
 package se.gustavkarlsson.slapshot.ktor
 
-import io.ktor.client.plugins.api.ClientPlugin
-import io.ktor.client.plugins.api.createClientPlugin
+import io.ktor.http.content.OutgoingContent
+import io.ktor.server.application.ApplicationPlugin
+import io.ktor.server.application.createApplicationPlugin
+import io.ktor.server.application.hooks.ResponseBodyReadyForSend
+import io.ktor.server.application.hooks.ResponseSent
+import io.ktor.util.AttributeKey
 import org.junit.jupiter.api.TestInfo
 import se.gustavkarlsson.slapshot.core.SnapshotContext
 import se.gustavkarlsson.slapshot.json.JsonSerializer
 import se.gustavkarlsson.slapshot.json.JsonTester
 
 @Suppress("FunctionName")
-public fun SnapshotTesting(snapshotContext: SnapshotContext<TestInfo>): ClientPlugin<SnapshotTestingConfig> =
-    createClientPlugin(
+public fun SnapshotTesting(snapshotContext: SnapshotContext<TestInfo>): ApplicationPlugin<SnapshotTestingConfig> =
+    createApplicationPlugin(
         name = "SnapshotTesting",
         createConfiguration = {
             SnapshotTestingConfig(snapshotContext = snapshotContext)
@@ -17,15 +21,21 @@ public fun SnapshotTesting(snapshotContext: SnapshotContext<TestInfo>): ClientPl
     ) {
         val tester = JsonTester(errorStyle = pluginConfig.errorStyle)
         val snapshotter = pluginConfig.snapshotContext.createSnapshotter(JsonSerializer, tester)
-        onResponse { response ->
-            val config = this@createClientPlugin.pluginConfig
+        on(ResponseBodyReadyForSend) { call, content ->
+            call.attributes.put(OutgoingContentKey, content)
+        }
+        on(ResponseSent) { call ->
+            val content = call.attributes[OutgoingContentKey]
             val json =
-                response.toJsonString(
-                    skipRequestHeaders = config.skipRequestHeaders.toList(),
-                    skipResponseHeaders = config.skipResponseHeaders.toList(),
-                    requestBodyToJson = config.requestBodyToJson,
-                    responseBodyToJson = config.responseBodyToJson,
+                call.toJson(
+                    outgoingContent = content,
+                    skipRequestHeaders = pluginConfig.skipRequestHeaders.toList(),
+                    skipResponseHeaders = pluginConfig.skipResponseHeaders.toList(),
+                    requestBodyToJson = pluginConfig.requestBodyToJson,
+                    responseBodyToJson = pluginConfig.responseBodyToJson,
                 )
             snapshotter.snapshot(json)
         }
     }
+
+private val OutgoingContentKey = AttributeKey<OutgoingContent>("OutgoingContent")
