@@ -15,6 +15,7 @@ import io.ktor.http.parameters
 import io.ktor.server.application.call
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Routing
 import io.ktor.server.routing.get
@@ -197,6 +198,7 @@ class PluginIntegrationTest {
         }
 
     // FIXME add tests for invalid json
+    // FIXME Ktor 3
 
     @OptIn(ExperimentalStdlibApi::class)
     @Test
@@ -204,7 +206,7 @@ class PluginIntegrationTest {
         testSnapshotting(
             configureRouting = {
                 post("/") {
-                    call.respond("48656c6c6f2c20436c69656e74".hexToByteArray())
+                    call.respondBytes("48656c6c6f2c20436c69656e74".hexToByteArray(), ContentType.Application.OctetStream)
                 }
             },
         ) {

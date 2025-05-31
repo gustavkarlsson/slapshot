@@ -4,6 +4,9 @@ import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.request
 import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.append
+import io.ktor.http.headers
 import io.ktor.util.toMap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -31,7 +34,7 @@ internal suspend fun HttpResponse.toJsonString(
                         buildMap {
                             put("method", request.method.value.toJsonString())
                             put("url", request.url.toString().toJsonString())
-                            put("headers", request.headers.toJsonObject(skipRequestHeaders))
+                            put("headers", request.allHeaders.toJsonObject(skipRequestHeaders))
                             val body = requestBodyToJson(request)
                             if (body != null) {
                                 val bodyJson = Json.decodeFromString<JsonElement>(body)
@@ -76,3 +79,16 @@ private fun Headers.toJsonObject(skipHeaders: List<String>): JsonObject {
             }
     return JsonObject(map)
 }
+
+// For some dumb reason, Ktor's HttpRequest doesn't expose all headers directly.
+private val HttpRequest.allHeaders: Headers
+    get() =
+        headers {
+            appendAll(headers)
+            content.contentType?.let { contentType ->
+                append(HttpHeaders.ContentType, contentType)
+            }
+            content.contentLength?.let { contentLength ->
+                append(HttpHeaders.ContentLength, contentLength.toString())
+            }
+        }

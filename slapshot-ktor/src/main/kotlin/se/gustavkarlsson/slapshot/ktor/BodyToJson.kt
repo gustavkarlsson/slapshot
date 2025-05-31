@@ -19,12 +19,14 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.Base64
 
+// FIXME clean up
+
 internal fun requestBodyToJson(request: HttpRequest): String? {
     val jsonElement: JsonElement =
         when (val content = request.content) {
             is OutgoingContent.NoContent -> return null
             is TextContent ->
-                if (request.contentType()?.match(ContentType.Application.Json) == true) {
+                if (request.content.contentType?.match(ContentType.Application.Json) == true) {
                     Json.decodeFromString(content.text)
                 } else {
                     JsonPrimitive(content.text)

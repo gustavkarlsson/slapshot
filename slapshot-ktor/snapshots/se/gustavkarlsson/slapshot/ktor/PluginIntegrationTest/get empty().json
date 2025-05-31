@@ -4,7 +4,8 @@
         "url": "http://localhost/",
         "headers": {
             "Accept-Charset": "UTF-8",
-            "Accept": "*/*"
+            "Accept": "*/*",
+            "Content-Length": "0"
         }
     },
     "response": {

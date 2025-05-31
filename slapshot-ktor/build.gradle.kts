@@ -26,6 +26,7 @@ dependencies {
     testImplementation(libs.strikt)
     testImplementation(libs.ktor.client.core)
     testImplementation(libs.ktor.server.core)
+    testImplementation("io.ktor:ktor-client-logging:2.3.13")
     testImplementation(libs.ktor.server.test.host)
 }
 

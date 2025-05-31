@@ -4,7 +4,9 @@
         "url": "http://localhost/",
         "headers": {
             "Accept-Charset": "UTF-8",
-            "Accept": "*/*"
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Content-Length": "82"
         },
         "body": {
             "username": "JetBrains",

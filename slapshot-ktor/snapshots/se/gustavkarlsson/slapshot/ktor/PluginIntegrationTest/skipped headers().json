@@ -5,7 +5,8 @@
         "headers": {
             "Include-From-Request": "included",
             "Accept-Charset": "UTF-8",
-            "Accept": "*/*"
+            "Accept": "*/*",
+            "Content-Length": "0"
         }
     },
     "response": {
