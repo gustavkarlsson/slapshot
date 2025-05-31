@@ -11,6 +11,7 @@ import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.util.toMap
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -27,7 +28,11 @@ internal fun requestBodyToJson(request: HttpRequest): String? {
             is OutgoingContent.NoContent -> return null
             is TextContent ->
                 if (request.content.contentType?.match(ContentType.Application.Json) == true) {
-                    Json.decodeFromString(content.text)
+                    try {
+                        Json.decodeFromString(content.text)
+                    } catch (_: SerializationException) {
+                        JsonPrimitive(content.text)
+                    }
                 } else {
                     JsonPrimitive(content.text)
                 }
@@ -65,7 +70,11 @@ internal suspend fun responseBodyToJson(response: HttpResponse): String? {
 
             contentType.match(ContentType.Application.Json) -> {
                 val text = response.bodyAsTextIfNotEmpty() ?: return null
-                Json.decodeFromString(text)
+                try {
+                    Json.decodeFromString(text)
+                } catch (_: SerializationException) {
+                    JsonPrimitive(text)
+                }
             }
 
             contentType.match(ContentType.Text.Any) -> {
