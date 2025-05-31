@@ -8,7 +8,10 @@
             "Content-Type": "application/json; charset=UTF-8",
             "Content-Length": "4"
         },
-        "body": null
+        "body": {
+            "format": "json",
+            "data": null
+        }
     },
     "response": {
         "status": 200,
@@ -16,6 +19,9 @@
             "Content-Length": "4",
             "Content-Type": "application/json; charset=UTF-8"
         },
-        "body": null
+        "body": {
+            "format": "json",
+            "data": null
+        }
     }
 }

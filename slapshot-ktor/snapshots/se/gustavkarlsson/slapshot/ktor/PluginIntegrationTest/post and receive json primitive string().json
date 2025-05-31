@@ -8,7 +8,10 @@
             "Content-Type": "application/json; charset=UTF-8",
             "Content-Length": "15"
         },
-        "body": "Hello, Server"
+        "body": {
+            "format": "json",
+            "data": "Hello, Server"
+        }
     },
     "response": {
         "status": 200,
@@ -16,6 +19,9 @@
             "Content-Length": "15",
             "Content-Type": "application/json; charset=UTF-8"
         },
-        "body": "Hello, Client"
+        "body": {
+            "format": "json",
+            "data": "Hello, Client"
+        }
     }
 }

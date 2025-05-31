@@ -8,7 +8,10 @@
             "Content-Type": "application/json; charset=UTF-8",
             "Content-Length": "1"
         },
-        "body": "["
+        "body": {
+            "format": "text",
+            "data": "["
+        }
     },
     "response": {
         "status": 200,

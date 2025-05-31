@@ -8,7 +8,10 @@
             "Content-Type": "text/plain; charset=UTF-8",
             "Content-Length": "13"
         },
-        "body": "Hello, Server"
+        "body": {
+            "format": "text",
+            "data": "Hello, Server"
+        }
     },
     "response": {
         "status": 200,
@@ -16,6 +19,9 @@
             "Content-Length": "14",
             "Content-Type": "text/plain; charset=UTF-8"
         },
-        "body": "Hello, Client!"
+        "body": {
+            "format": "text",
+            "data": "Hello, Client!"
+        }
     }
 }

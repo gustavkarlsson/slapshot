@@ -7,8 +7,7 @@
             "Accept-Charset": "UTF-8",
             "Content-Type": "application/json; charset=UTF-8",
             "Content-Length": "0"
-        },
-        "body": ""
+        }
     },
     "response": {
         "status": 200,

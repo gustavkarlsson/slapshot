@@ -9,8 +9,11 @@
             "Content-Length": "44"
         },
         "body": {
-            "message": "Hello, Server",
-            "length": 13
+            "format": "json",
+            "data": {
+                "message": "Hello, Server",
+                "length": 13
+            }
         }
     },
     "response": {
@@ -20,8 +23,11 @@
             "Content-Type": "application/json; charset=UTF-8"
         },
         "body": {
-            "message": "Hello, Client",
-            "length": 13
+            "format": "json",
+            "data": {
+                "message": "Hello, Client",
+                "length": 13
+            }
         }
     }
 }

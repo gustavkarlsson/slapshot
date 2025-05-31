@@ -9,13 +9,16 @@
             "Content-Length": "82"
         },
         "body": {
-            "username": "JetBrains",
-            "email": "example@jetbrains.com",
-            "password": "foobar",
-            "tags": [
-                "foo",
-                "bar"
-            ]
+            "format": "form-data",
+            "data": {
+                "username": "JetBrains",
+                "email": "example@jetbrains.com",
+                "password": "foobar",
+                "tags": [
+                    "foo",
+                    "bar"
+                ]
+            }
         }
     },
     "response": {
