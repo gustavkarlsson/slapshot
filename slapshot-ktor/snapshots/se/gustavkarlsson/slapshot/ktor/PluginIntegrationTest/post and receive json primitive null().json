@@ -5,9 +5,7 @@
         "headers": {
             "Accept": "application/json",
             "Accept-Charset": "UTF-8",
-            "User-Agent": "Ktor client",
-            "Content-Type": "application/json; charset=UTF-8",
-            "Content-Length": "4"
+            "Content-Type": "application/json; charset=UTF-8"
         },
         "body": null
     },

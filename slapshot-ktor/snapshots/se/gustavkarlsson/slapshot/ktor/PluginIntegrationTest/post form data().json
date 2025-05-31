@@ -4,10 +4,7 @@
         "url": "http://localhost/",
         "headers": {
             "Accept-Charset": "UTF-8",
-            "Accept": "*/*",
-            "User-Agent": "Ktor client",
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "Content-Length": "82"
+            "Accept": "*/*"
         },
         "body": {
             "username": "JetBrains",

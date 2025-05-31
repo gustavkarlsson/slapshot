@@ -301,8 +301,11 @@ class PluginIntegrationTest {
         block: suspend HttpClient.() -> Unit,
     ) {
         testApplication {
-            install(SnapshotTesting(snapshotContext), configurePlugin)
             application { routing(configureRouting) }
+            val client =
+                createClient {
+                    install(SnapshotTesting(snapshotContext), configurePlugin)
+                }
             block(client)
         }
     }

@@ -5,9 +5,7 @@
         "headers": {
             "Include-From-Request": "included",
             "Accept-Charset": "UTF-8",
-            "Accept": "*/*",
-            "User-Agent": "Ktor client",
-            "Content-Length": "0"
+            "Accept": "*/*"
         }
     },
     "response": {

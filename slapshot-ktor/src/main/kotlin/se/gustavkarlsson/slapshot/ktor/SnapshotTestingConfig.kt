@@ -1,8 +1,7 @@
 package se.gustavkarlsson.slapshot.ktor
 
-import io.ktor.http.content.OutgoingContent
-import io.ktor.server.request.ApplicationRequest
-import io.ktor.server.response.ApplicationResponse
+import io.ktor.client.request.HttpRequest
+import io.ktor.client.statement.HttpResponse
 import org.junit.jupiter.api.TestInfo
 import se.gustavkarlsson.slapshot.core.SnapshotContext
 import se.gustavkarlsson.slapshot.json.JsonErrorStyle
@@ -13,6 +12,6 @@ public data class SnapshotTestingConfig internal constructor(
     val skipRequestHeaders: MutableList<String> = mutableListOf(),
     val skipResponseHeaders: MutableList<String> = mutableListOf(),
     var errorStyle: JsonErrorStyle = JsonErrorStyle.JUnit,
-    var requestBodyToJson: (ApplicationRequest) -> String? = ::requestBodyToJson,
-    var responseBodyToJson: (ApplicationResponse, OutgoingContent) -> String? = ::responseBodyToJson,
+    var requestBodyToJson: suspend (HttpRequest) -> String? = ::requestBodyToJson,
+    var responseBodyToJson: suspend (HttpResponse) -> String? = ::responseBodyToJson,
 )

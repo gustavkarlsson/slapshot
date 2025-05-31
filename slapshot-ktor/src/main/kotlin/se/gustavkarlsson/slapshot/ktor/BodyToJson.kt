@@ -1,20 +1,16 @@
 package se.gustavkarlsson.slapshot.ktor
 
+import io.ktor.client.call.body
+import io.ktor.client.request.HttpRequest
+import io.ktor.client.request.forms.FormDataContent
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
-import io.ktor.http.ContentType.Application
-import io.ktor.http.ContentType.Text
 import io.ktor.http.content.ByteArrayContent
 import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
-import io.ktor.server.request.ApplicationRequest
-import io.ktor.server.request.contentType
-import io.ktor.server.request.receive
-import io.ktor.server.request.receiveParameters
-import io.ktor.server.request.receiveText
-import io.ktor.server.response.ApplicationResponse
-import io.ktor.util.StringValues
+import io.ktor.http.contentType
 import io.ktor.util.toMap
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -23,43 +19,27 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.Base64
 
-// FIXME extend with a bunch of other types, like XML, HTML, etc.
-internal fun requestBodyToJson(request: ApplicationRequest): String? {
-    val contentType = request.contentType()
+internal fun requestBodyToJson(request: HttpRequest): String? {
     val jsonElement: JsonElement =
-        when {
-            contentType.match(Application.Json) -> {
-                val textBody = runBlocking { request.call.receiveText() }
-                Json.decodeFromString(textBody)
-            }
-
-            contentType.match(Text.Any) -> {
-                val textBody = runBlocking { request.call.receiveText() }
-                JsonPrimitive(textBody)
-            }
-
-            contentType.match(Application.OctetStream) -> {
-                val bytesBody = runBlocking { request.call.receive<ByteArray>() }
-                JsonPrimitive(bytesBody.toBase64())
-            }
-
-            contentType.match(Application.FormUrlEncoded) -> {
-                val parameters = runBlocking { request.call.receiveParameters() }
-                parameters.toJsonObject()
-            }
-
-            else -> {
-                // Default to binary (or null if empty)
-                val bytesBody = runBlocking { request.call.receive<ByteArray>() }.takeIf { it.isNotEmpty() } ?: return null
-                JsonPrimitive(bytesBody.toBase64())
-            }
+        when (val content = request.content) {
+            is OutgoingContent.NoContent -> return null
+            is TextContent ->
+                if (request.contentType()?.match(ContentType.Application.Json) == true) {
+                    Json.decodeFromString(content.text)
+                } else {
+                    JsonPrimitive(content.text)
+                }
+            is FormDataContent -> content.toJsonObject()
+            is ByteArrayContent, is OutgoingContent.ByteArrayContent -> JsonPrimitive(content.bytes().toBase64())
+            is OutgoingContent.ProtocolUpgrade, is OutgoingContent.ReadChannelContent, is OutgoingContent.WriteChannelContent ->
+                throw IllegalArgumentException("Unsupported request content type: ${content::class.qualifiedName}")
         }
     return Json.encodeToString(jsonElement)
 }
 
-private fun StringValues.toJsonObject(): JsonObject {
+private fun FormDataContent.toJsonObject(): JsonObject {
     val map =
-        toMap()
+        formData.toMap()
             .filterValues { it.isNotEmpty() }
             .mapValues { (_, values) -> values.map(::JsonPrimitive) }
             .mapValues { (_, jsonStrings) ->
@@ -72,35 +52,44 @@ private fun StringValues.toJsonObject(): JsonObject {
     return JsonObject(map)
 }
 
-internal fun responseBodyToJson(
-    response: ApplicationResponse,
-    content: OutgoingContent,
-): String? {
-    val contentType = content.contentType ?: ContentType.Any
-
+internal suspend fun responseBodyToJson(response: HttpResponse): String? {
+    val contentType = response.contentType()
     val jsonElement: JsonElement =
-        when (content) {
-            is OutgoingContent.NoContent -> return null
+        when {
+            contentType == null -> {
+                // Binary?
+                response.bytesToBase64JsonStringIfNotEmpty() ?: return null
+            }
 
-            is TextContent ->
-                if (contentType.match(Application.Json)) {
-                    Json.decodeFromString(content.text)
-                } else {
-                    JsonPrimitive(content.text)
-                }
+            contentType.match(ContentType.Application.Json) -> {
+                val text = response.bodyAsTextIfNotEmpty() ?: return null
+                Json.decodeFromString(text)
+            }
 
-            is ByteArrayContent,
-            is OutgoingContent.ByteArrayContent,
-            ->
-                JsonPrimitive(content.bytes().toBase64())
+            contentType.match(ContentType.Text.Any) -> {
+                val text = response.bodyAsTextIfNotEmpty() ?: return null
+                JsonPrimitive(text)
+            }
 
-            is OutgoingContent.ProtocolUpgrade,
-            is OutgoingContent.ReadChannelContent,
-            is OutgoingContent.WriteChannelContent,
-            ->
-                throw IllegalArgumentException("Unsupported request content type: ${content::class.qualifiedName}")
+            contentType.match(ContentType.Application.OctetStream) -> {
+                response.bytesToBase64JsonStringIfNotEmpty() ?: return null
+            }
+
+            else -> {
+                // Binary?
+                response.bytesToBase64JsonStringIfNotEmpty() ?: return null
+            }
         }
     return Json.encodeToString(jsonElement)
+}
+
+private suspend fun HttpResponse.bodyAsTextIfNotEmpty(): String? = bodyAsText().takeIf { it.isNotEmpty() }
+
+private suspend fun HttpResponse.bytesToBase64JsonStringIfNotEmpty(): JsonPrimitive? {
+    val bytes = body<ByteArray>()
+    if (bytes.isEmpty()) return null
+    val base64String = bytes.toBase64()
+    return JsonPrimitive(base64String)
 }
 
 private fun ByteArray.toBase64(): String {
