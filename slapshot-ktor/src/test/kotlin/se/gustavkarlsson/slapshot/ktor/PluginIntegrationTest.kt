@@ -77,7 +77,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("\"Hello, Server\"")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
@@ -96,7 +96,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("\"\"")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
@@ -115,7 +115,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("5")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
@@ -134,7 +134,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("5.5")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
@@ -153,7 +153,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("null")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
@@ -172,7 +172,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("""{ "message": "Hello, Server", "length": 13 }""")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
@@ -191,7 +191,7 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("""[1, "two", 3.4]""")
-                contentType(ContentType.Application.Json)
+                contentType(ContentType.Application.Json.withParameter("charset", "UTF-8"))
                 accept(ContentType.Application.Json)
             }
         }
