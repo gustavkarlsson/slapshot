@@ -18,10 +18,13 @@ public fun SnapshotTesting(snapshotContext: SnapshotContext<TestInfo>): ClientPl
         val tester = JsonTester(errorStyle = pluginConfig.errorStyle)
         val snapshotter = pluginConfig.snapshotContext.createSnapshotter(JsonSerializer, tester)
         onResponse { response ->
+            val config = this@createClientPlugin.pluginConfig
             val json =
                 response.toJsonString(
-                    skipRequestHeaders = this@createClientPlugin.pluginConfig.skipRequestHeaders.toList(),
-                    skipResponseHeaders = this@createClientPlugin.pluginConfig.skipResponseHeaders.toList(),
+                    skipRequestHeaders = config.skipRequestHeaders.toList(),
+                    skipResponseHeaders = config.skipResponseHeaders.toList(),
+                    requestBodyToJson = config.requestBodyToJson,
+                    responseBodyToJson = config.responseBodyToJson,
                 )
             snapshotter.snapshot(json)
         }

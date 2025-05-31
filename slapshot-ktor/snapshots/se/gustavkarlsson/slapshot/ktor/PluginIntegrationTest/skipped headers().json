@@ -1,0 +1,18 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "http://localhost/",
+        "headers": {
+            "Include-From-Request": "included",
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Include-From-Response": "included",
+            "Content-Length": "0"
+        }
+    }
+}

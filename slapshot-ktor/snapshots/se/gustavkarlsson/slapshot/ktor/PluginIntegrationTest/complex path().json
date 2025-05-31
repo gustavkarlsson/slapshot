@@ -1,0 +1,16 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "http://localhost/some/complex/path?key=value",
+        "headers": {
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Length": "0"
+        }
+    }
+}

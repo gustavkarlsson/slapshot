@@ -1,0 +1,25 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept": "application/json",
+            "Accept-Charset": "UTF-8"
+        },
+        "body": {
+            "message": "Hello, Server",
+            "length": 13
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Length": "44",
+            "Content-Type": "application/json; charset=UTF-8"
+        },
+        "body": {
+            "message": "Hello, Client",
+            "length": 13
+        }
+    }
+}

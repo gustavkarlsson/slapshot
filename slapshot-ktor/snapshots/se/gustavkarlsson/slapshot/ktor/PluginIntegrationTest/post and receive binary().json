@@ -1,0 +1,18 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*"
+        },
+        "body": "SGVsbG8sIFNlcnZlcg=="
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Length": "13"
+        },
+        "body": "SGVsbG8sIENsaWVudA=="
+    }
+}

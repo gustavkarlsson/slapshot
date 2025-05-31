@@ -1,18 +1,18 @@
 package se.gustavkarlsson.slapshot.ktor
 
+import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
 import io.ktor.http.Headers
-import io.ktor.http.content.TextContent
 import io.ktor.util.toMap
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
-private val json =
+private val prettyPrintJson =
     Json {
         prettyPrint = true
     }
@@ -20,6 +20,8 @@ private val json =
 internal suspend fun HttpResponse.toJsonString(
     skipRequestHeaders: List<String> = emptyList(),
     skipResponseHeaders: List<String> = emptyList(),
+    requestBodyToJson: suspend (HttpRequest) -> String?,
+    responseBodyToJson: suspend (HttpResponse) -> String?,
 ): String {
     val root =
         JsonObject(
@@ -30,10 +32,10 @@ internal suspend fun HttpResponse.toJsonString(
                             put("method", request.method.value.toJsonString())
                             put("url", request.url.toString().toJsonString())
                             put("headers", request.headers.toJsonObject(skipRequestHeaders))
-                            // FIXME find a way to make this generic, so other types can be tested
-                            val body = (request.content as? TextContent)?.text
+                            val body = requestBodyToJson(request)
                             if (body != null) {
-                                put("body", body.toJsonString())
+                                val bodyJson = Json.decodeFromString<JsonElement>(body)
+                                put("body", bodyJson)
                             }
                         },
                     ),
@@ -42,16 +44,16 @@ internal suspend fun HttpResponse.toJsonString(
                         buildMap {
                             put("status", status.value.toJsonNumber())
                             put("headers", headers.toJsonObject(skipResponseHeaders))
-                            // FIXME find a way to make this generic, so other types can be tested
-                            val body = bodyAsText()
-                            if (body.isNotEmpty()) {
-                                put("body", body.toJsonString())
+                            val body = responseBodyToJson(this@toJsonString)
+                            if (body != null) {
+                                val bodyJson = Json.decodeFromString<JsonElement>(body)
+                                put("body", bodyJson)
                             }
                         },
                     ),
             ),
         )
-    return json.encodeToString(root)
+    return prettyPrintJson.encodeToString(root)
 }
 
 private fun Int.toJsonNumber() = JsonPrimitive(this)
@@ -66,7 +68,11 @@ private fun Headers.toJsonObject(skipHeaders: List<String>): JsonObject {
             }
             .mapValues { (_, headerValues) ->
                 val jsonStrings = headerValues.map(String::toJsonString)
-                JsonArray(jsonStrings)
+                if (jsonStrings.size == 1) {
+                    jsonStrings.first()
+                } else {
+                    JsonArray(jsonStrings)
+                }
             }
     return JsonObject(map)
 }
