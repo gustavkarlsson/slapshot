@@ -1,4 +1,4 @@
-package se.gustavkarlsson.slapshot.core.serializers
+package se.gustavkarlsson.slapshot.json
 
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat

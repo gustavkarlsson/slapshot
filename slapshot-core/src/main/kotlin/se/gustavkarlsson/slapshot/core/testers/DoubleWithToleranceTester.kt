@@ -4,7 +4,7 @@ import se.gustavkarlsson.slapshot.core.Tester
 import kotlin.math.abs
 
 /**
- * Tests equality of double values with an optional tolerance, allowing
+ * Tests equality of double snapshots with an optional tolerance, allowing
  * two values to be considered equal if the absolute difference between them is within the
  * specified tolerance.
  */

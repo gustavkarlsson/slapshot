@@ -18,7 +18,7 @@ If it can be serialized, you can snapshot test with it!
 Some examples of built-in type support:
 
 * Primitives such as numbers and strings
-* JSON
+* Lists, sets, and maps
 * Image bitmaps with variable tolerance levels (good for screenshots!)
 
 But you can also implement your own serializer, such as for web server requests/responses, or mp3 files.
@@ -113,6 +113,19 @@ For example:
 
 Slapshot uses a `Tester` interface to handle comparisons and produce error messages.
 Some are included, but you can also implement your own too.
+
+## Extension libraries
+
+The project includes additional libraries to extend its capabilities.
+
+Apply them like this:
+
+```kotlin
+dependencies {
+    // Omit the version. The Slapshot Gradle plugin sets the correct one.
+    testImplementation("se.gustavkarlsson.slapshot:slapshot-json") // Create and test JSON snapshots
+}
+```
 
 ## Configuration
 
