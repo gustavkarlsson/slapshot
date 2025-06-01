@@ -2,7 +2,9 @@ package se.gustavkarlsson.slapshot.ktor
 
 import io.ktor.client.HttpClient
 import io.ktor.client.request.accept
+import io.ktor.client.request.forms.formData
 import io.ktor.client.request.forms.submitForm
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -10,8 +12,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType.Application
 import io.ktor.http.ContentType.Text
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.http.headers
 import io.ktor.http.parameters
 import io.ktor.http.withCharset
 import io.ktor.server.application.call
@@ -419,6 +423,36 @@ class PluginIntegrationTest {
             configureRouting = {},
         ) {
             get("/")
+        }
+
+    @OptIn(ExperimentalStdlibApi::class)
+    @Test
+    fun `upload file`() =
+        testSnapshotting(
+            configureRouting = {
+                post {
+                    call.respond(HttpStatusCode.OK)
+                }
+            },
+            configurePlugin = {
+                skipRequestHeaders.add("Content-Type") // Boundary is not deterministic
+            },
+        ) {
+            submitFormWithBinaryData(
+                url = "/",
+                formData =
+                    formData {
+                        append("description", "Ktor logo")
+                        append(
+                            "image",
+                            "48656c6c6f2c20536572766572".hexToByteArray(),
+                            headers {
+                                append(HttpHeaders.ContentType, "image/png")
+                                append(HttpHeaders.ContentDisposition, "filename=\"ktor_logo.png\"")
+                            },
+                        )
+                    },
+            )
         }
 
     private fun testSnapshotting(

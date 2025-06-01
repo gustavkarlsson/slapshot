@@ -3,6 +3,7 @@ package se.gustavkarlsson.slapshot.ktor
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequest
 import io.ktor.client.request.forms.FormDataContent
+import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -12,6 +13,10 @@ import io.ktor.http.content.OutgoingContent
 import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.util.toMap
+import io.ktor.utils.io.ByteChannel
+import io.ktor.utils.io.close
+import io.ktor.utils.io.core.readBytes
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -47,11 +52,44 @@ internal fun requestBodyToJson(request: HttpRequest): String? {
                 binaryBase64Body(content.bytes())
             }
 
-            is OutgoingContent.ProtocolUpgrade, is OutgoingContent.ReadChannelContent, is OutgoingContent.WriteChannelContent ->
+            // TODO Can we do better?
+            is MultiPartFormDataContent -> {
+                unsupportedBody("multipart/form-data")
+            }
+
+            is OutgoingContent.WriteChannelContent -> {
+                val bytes = content.writeBytes()
+                if (bytes.isEmpty()) return null
+                binaryBase64Body(bytes)
+            }
+
+            is OutgoingContent.ReadChannelContent -> {
+                val bytes = content.readBytes()
+                if (bytes.isEmpty()) return null
+                binaryBase64Body(bytes)
+            }
+
+            is OutgoingContent.ProtocolUpgrade ->
                 throw IllegalArgumentException("Unsupported request content type: ${content::class.qualifiedName}")
         }
     return Json.encodeToString(jsonObject)
 }
+
+private fun OutgoingContent.WriteChannelContent.writeBytes(): ByteArray =
+    runBlocking {
+        val channel = ByteChannel(autoFlush = true)
+        try {
+            writeTo(channel)
+            channel.readRemaining().readBytes()
+        } finally {
+            channel.close()
+        }
+    }
+
+private fun OutgoingContent.ReadChannelContent.readBytes(): ByteArray =
+    runBlocking {
+        readFrom().readRemaining().readBytes()
+    }
 
 internal suspend fun responseBodyToJson(response: HttpResponse): String? {
     val contentType = response.contentType()
@@ -122,6 +160,10 @@ private fun jsonBody(data: JsonElement): JsonObject {
 
 private fun textBody(text: String): JsonObject {
     return createBodyJsonObject("text", JsonPrimitive(text))
+}
+
+private fun unsupportedBody(type: String): JsonObject {
+    return createBodyJsonObject("unsupported-type", JsonPrimitive(type))
 }
 
 private fun formDataBody(parameters: Parameters): JsonObject {
