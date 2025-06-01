@@ -6,7 +6,8 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
+import io.ktor.http.ContentType.Application
+import io.ktor.http.ContentType.Text
 import io.ktor.http.Parameters
 import io.ktor.http.content.ByteArrayContent
 import io.ktor.http.content.OutgoingContent
@@ -14,11 +15,10 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.contentType
 import io.ktor.util.toMap
 import io.ktor.utils.io.ByteChannel
-import io.ktor.utils.io.close
-import io.ktor.utils.io.core.readBytes
+import io.ktor.utils.io.readRemaining
 import kotlinx.coroutines.runBlocking
+import kotlinx.io.readByteArray
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -26,53 +26,54 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.Base64
 
-// FIXME clean up, and support more content types
-
-// FIXME Support ReadChannelContent? File uploads/downloads?
 internal fun requestBodyToJson(request: HttpRequest): String? {
-    val jsonObject: JsonObject =
-        when (val content = request.content) {
-            is OutgoingContent.NoContent -> return null
-            is TextContent -> {
-                if (content.text.isEmpty()) return null
-                if (request.content.contentType?.match(ContentType.Application.Json) == true) {
-                    jsonOrTextBody(content.text)
-                } else {
-                    textBody(content.text)
-                }
-            }
-
-            is FormDataContent -> {
-                if (content.formData.isEmpty()) return null
-                formDataBody(content.formData)
-            }
-
-            is ByteArrayContent, is OutgoingContent.ByteArrayContent -> {
-                if (content.bytes().isEmpty()) return null
-                binaryBase64Body(content.bytes())
-            }
-
-            // TODO Can we do better?
-            is MultiPartFormDataContent -> {
-                unsupportedBody("multipart/form-data")
-            }
-
-            is OutgoingContent.WriteChannelContent -> {
-                val bytes = content.writeBytes()
-                if (bytes.isEmpty()) return null
-                binaryBase64Body(bytes)
-            }
-
-            is OutgoingContent.ReadChannelContent -> {
-                val bytes = content.readBytes()
-                if (bytes.isEmpty()) return null
-                binaryBase64Body(bytes)
-            }
-
-            is OutgoingContent.ProtocolUpgrade ->
-                throw IllegalArgumentException("Unsupported request content type: ${content::class.qualifiedName}")
-        }
+    val jsonObject = request.content.toJsonObject() ?: return null
     return Json.encodeToString(jsonObject)
+}
+
+private fun OutgoingContent.toJsonObject(): JsonObject? {
+    return when (this) {
+        is OutgoingContent.ContentWrapper -> return delegate().toJsonObject()
+        is OutgoingContent.NoContent -> return null
+        is TextContent -> {
+            if (text.isEmpty()) return null
+            if (contentType.match(Application.Json)) {
+                jsonOrTextBody(text)
+            } else {
+                textBody(text)
+            }
+        }
+
+        is FormDataContent -> {
+            if (formData.isEmpty()) return null
+            formDataBody(formData)
+        }
+
+        is ByteArrayContent, is OutgoingContent.ByteArrayContent -> {
+            if (bytes().isEmpty()) return null
+            binaryBase64Body(bytes())
+        }
+
+        // TODO Can we do better?
+        is MultiPartFormDataContent -> {
+            unsupportedBody("multipart/form-data")
+        }
+
+        is OutgoingContent.WriteChannelContent -> {
+            val bytes = writeBytes()
+            if (bytes.isEmpty()) return null
+            binaryBase64Body(bytes)
+        }
+
+        is OutgoingContent.ReadChannelContent -> {
+            val bytes = readBytes()
+            if (bytes.isEmpty()) return null
+            binaryBase64Body(bytes)
+        }
+
+        is OutgoingContent.ProtocolUpgrade ->
+            throw IllegalArgumentException("Unsupported request content type: ${this::class.qualifiedName}")
+    }
 }
 
 private fun OutgoingContent.WriteChannelContent.writeBytes(): ByteArray =
@@ -80,15 +81,15 @@ private fun OutgoingContent.WriteChannelContent.writeBytes(): ByteArray =
         val channel = ByteChannel(autoFlush = true)
         try {
             writeTo(channel)
-            channel.readRemaining().readBytes()
+            channel.readRemaining().readByteArray()
         } finally {
-            channel.close()
+            channel.flushAndClose()
         }
     }
 
 private fun OutgoingContent.ReadChannelContent.readBytes(): ByteArray =
     runBlocking {
-        readFrom().readRemaining().readBytes()
+        readFrom().readRemaining().readByteArray()
     }
 
 internal suspend fun responseBodyToJson(response: HttpResponse): String? {
@@ -105,7 +106,7 @@ internal suspend fun responseBodyToJson(response: HttpResponse): String? {
                 }
             }
 
-            contentType.match(ContentType.Application.Json) -> {
+            contentType.match(Application.Json) -> {
                 val text = response.bodyAsText()
                 if (text.isNotEmpty()) {
                     jsonOrTextBody(text)
@@ -114,7 +115,7 @@ internal suspend fun responseBodyToJson(response: HttpResponse): String? {
                 }
             }
 
-            contentType.match(ContentType.Text.Any) -> {
+            contentType.match(Text.Any) -> {
                 val text = response.bodyAsText()
                 if (text.isNotEmpty()) {
                     textBody(text)
@@ -123,7 +124,7 @@ internal suspend fun responseBodyToJson(response: HttpResponse): String? {
                 }
             }
 
-            contentType.match(ContentType.Application.OctetStream) -> {
+            contentType.match(Application.OctetStream) -> {
                 val bytes = response.body<ByteArray>()
                 if (bytes.isNotEmpty()) {
                     binaryBase64Body(bytes)
@@ -163,7 +164,7 @@ private fun textBody(text: String): JsonObject {
 }
 
 private fun unsupportedBody(type: String): JsonObject {
-    return createBodyJsonObject("unsupported-type", JsonPrimitive(type))
+    return createBodyJsonObject("unsupported", JsonPrimitive(type))
 }
 
 private fun formDataBody(parameters: Parameters): JsonObject {

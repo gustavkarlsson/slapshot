@@ -8,7 +8,6 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.append
 import io.ktor.http.headers
 import io.ktor.util.toMap
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement

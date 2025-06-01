@@ -18,7 +18,6 @@ import io.ktor.http.contentType
 import io.ktor.http.headers
 import io.ktor.http.parameters
 import io.ktor.http.withCharset
-import io.ktor.server.application.call
 import io.ktor.server.response.header
 import io.ktor.server.response.respond
 import io.ktor.server.response.respondBytes
@@ -298,8 +297,6 @@ class PluginIntegrationTest {
                 accept(Application.Json)
             }
         }
-
-    // FIXME Ktor 3
 
     @OptIn(ExperimentalStdlibApi::class)
     @Test
