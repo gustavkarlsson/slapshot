@@ -9,7 +9,7 @@
             "Content-Length": "82"
         },
         "body": {
-            "format": "form-data",
+            "type": "form-data",
             "data": {
                 "username": "JetBrains",
                 "email": "example@jetbrains.com",

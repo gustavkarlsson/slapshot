@@ -9,7 +9,7 @@
             "Content-Length": "13"
         },
         "body": {
-            "format": "binary-base64",
+            "type": "binary-base64",
             "data": "SGVsbG8sIFNlcnZlcg=="
         }
     },
@@ -20,7 +20,7 @@
             "Content-Type": "application/octet-stream"
         },
         "body": {
-            "format": "binary-base64",
+            "type": "binary-base64",
             "data": "SGVsbG8sIENsaWVudA=="
         }
     }

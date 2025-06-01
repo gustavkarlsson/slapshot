@@ -178,12 +178,12 @@ private fun binaryBase64Body(bytes: ByteArray): JsonObject {
 }
 
 private fun createBodyJsonObject(
-    format: String,
+    type: String,
     data: JsonElement,
 ): JsonObject {
     val map =
         buildMap {
-            put("format", JsonPrimitive(format))
+            put("type", JsonPrimitive(type))
             put("data", data)
         }
     return JsonObject(map)

@@ -8,7 +8,7 @@
             "Content-Length": "438"
         },
         "body": {
-            "format": "unsupported-type",
+            "type": "unsupported-type",
             "data": "multipart/form-data"
         }
     },

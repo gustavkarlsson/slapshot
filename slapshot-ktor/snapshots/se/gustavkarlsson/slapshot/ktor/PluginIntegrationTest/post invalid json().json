@@ -9,7 +9,7 @@
             "Content-Length": "1"
         },
         "body": {
-            "format": "text",
+            "type": "text",
             "data": "["
         }
     },

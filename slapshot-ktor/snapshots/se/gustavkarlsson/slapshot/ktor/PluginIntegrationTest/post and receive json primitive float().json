@@ -9,7 +9,7 @@
             "Content-Length": "3"
         },
         "body": {
-            "format": "json",
+            "type": "json",
             "data": 5.5
         }
     },
@@ -20,7 +20,7 @@
             "Content-Type": "application/json; charset=UTF-8"
         },
         "body": {
-            "format": "json",
+            "type": "json",
             "data": 7.7
         }
     }

@@ -9,7 +9,7 @@
             "Content-Length": "13"
         },
         "body": {
-            "format": "text",
+            "type": "text",
             "data": "Hello, Server"
         }
     },
@@ -20,7 +20,7 @@
             "Content-Type": "text/plain; charset=UTF-8"
         },
         "body": {
-            "format": "text",
+            "type": "text",
             "data": "Hello, Client!"
         }
     }
