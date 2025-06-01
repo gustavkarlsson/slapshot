@@ -3,7 +3,7 @@
 ## Before next release
 * Add CI status check
 * Test passing actions as Gradle properties or setting in plugin extension
-* Extract heavier snapshot formats (Image, JSON, Ktor) to separate libs
+* Extract heavier snapshot formats (Image, JSON) to separate libs
 
 ## At some point
 * Setup library API stability check
