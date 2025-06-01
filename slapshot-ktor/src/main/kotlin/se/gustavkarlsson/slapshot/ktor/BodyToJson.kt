@@ -33,7 +33,7 @@ internal fun requestBodyToJson(request: HttpRequest): String? {
 
 private fun OutgoingContent.toJsonObject(): JsonObject? {
     return when (this) {
-        is OutgoingContent.ContentWrapper -> return delegate().toJsonObject()
+        is OutgoingContent.ContentWrapper -> return delegate().toJsonObject() // Recursive unwrapping
         is OutgoingContent.NoContent -> return null
         is TextContent -> {
             if (text.isEmpty()) return null

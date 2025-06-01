@@ -20,7 +20,7 @@ public fun SnapshotTesting(snapshotContext: SnapshotContext<TestInfo>): ClientPl
         onResponse { response ->
             val config = this@createClientPlugin.pluginConfig
             val json =
-                response.toJsonString(
+                response.call.toJsonString(
                     skipRequestHeaders = config.skipRequestHeaders.toList(),
                     skipResponseHeaders = config.skipResponseHeaders.toList(),
                     requestBodyToJson = config.requestBodyToJson,

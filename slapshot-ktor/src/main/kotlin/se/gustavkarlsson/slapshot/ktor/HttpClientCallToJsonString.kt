@@ -1,8 +1,8 @@
 package se.gustavkarlsson.slapshot.ktor
 
+import io.ktor.client.call.HttpClientCall
 import io.ktor.client.request.HttpRequest
 import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.request
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import io.ktor.http.append
@@ -19,7 +19,7 @@ private val prettyPrintJson =
         prettyPrint = true
     }
 
-internal suspend fun HttpResponse.toJsonString(
+internal suspend fun HttpClientCall.toJsonString(
     skipRequestHeaders: List<String> = emptyList(),
     skipResponseHeaders: List<String> = emptyList(),
     requestBodyToJson: suspend (HttpRequest) -> String?,
@@ -44,9 +44,9 @@ internal suspend fun HttpResponse.toJsonString(
                 "response" to
                     JsonObject(
                         buildMap {
-                            put("status", status.value.toJsonNumber())
-                            put("headers", headers.toJsonObject(skipResponseHeaders))
-                            val body = responseBodyToJson(this@toJsonString)
+                            put("status", response.status.value.toJsonNumber())
+                            put("headers", response.headers.toJsonObject(skipResponseHeaders))
+                            val body = responseBodyToJson(response)
                             if (body != null) {
                                 val bodyJson = Json.decodeFromString<JsonElement>(body)
                                 put("body", bodyJson)
