@@ -15,12 +15,13 @@ such as JUnit 4 and 5.
 With an extensible architecture, it enables you to snapshot test almost any data imaginable.
 If it can be serialized, you can snapshot test with it!
 
-Some examples of built-in formats:
+Some examples of built-in type support:
+
 * Primitives such as numbers and strings
-* JSON, with configurable rules for things like missing null values
+* JSON
 * Image bitmaps with variable tolerance levels (good for screenshots!)
 
-But you can easily implement your own format as well, such as web server requests/responses, or mp3 files.
+But you can also implement your own serializer, such as for web server requests/responses, or mp3 files.
 
 ## Getting Started
 
@@ -42,6 +43,7 @@ slapshot {
 ### Set up a test class
 
 **JUnit 5**
+
 ```kotlin
  @ExtendWith(SnapshotExtension::class)
 class MyTests {
@@ -49,20 +51,21 @@ class MyTests {
 
     @BeforeEach
     fun initSnapshotContext(snapshotContext: JUnit5SnapshotContext) {
-        val format = StringFormat()
-        snapshotter = snapshotContext.createSnapshotter(format)
+        val serializer = StringSerializer()
+        snapshotter = snapshotContext.createSnapshotter(serializer)
     }
 }
 ```
 
 **JUnit 4**
+
 ```kotlin
 class MyTests {
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
     val snapshotter = let {
-        val format = StringFormat()
-        snapshotContext.createSnapshotter(format)
+        val serializer = StringSerializer()
+        snapshotContext.createSnapshotter(serializer)
     }
 }
 ```
@@ -92,16 +95,24 @@ The next time it runs, it will compare the result to the saved snapshot and succ
 
 By committing the snapshot files, we are preventing regressions that would cause the results to change.
 
-## Different data types and formats
+## Snapshotting different types of data
 
-Slapshot is not limited to strings! Different data types are supported through different implementations of
-`SnapshotFormat`. Formats define how the data is serialized, deserialized, and compared.
+Slapshot is not limited to strings! Different data types are supported through different implementations of the
+`Serializer` interface.
 
-For example, JSON can be serialized to strings,
-but comparing JSON snapshots as strings is too strict (whitespace should be ignored).
+Slapshot comes with many serializers out of the box. Check them out or implement your own!
 
-Slapshot comes with several formats out of the box. Some of them can even be configured in different ways. Check them
-out or implement your own!
+## Testing complex data
+
+By default, Slapshot compares snapshots by equality, but sometimes a more sophisticated comparison might be necessary.
+For example:
+
+* Some types may not have a working `equals()` function.
+* Some types don't have a useful `toString()` for error messages.
+* Some types, such as floating point types, might need to be compared with some level of tolerance.
+
+Slapshot uses a `Tester` interface to handle comparisons and produce error messages.
+Some are included, but you can also implement your own too.
 
 ## Configuration
 
@@ -135,7 +146,7 @@ When you create a `Snapshotter` from a `SnapshotContext`, you can override some 
 
 ```kotlin
 val snapshotter = snapshotContext.createSnapshotter(
-    format = LongFormat(),
+    serializer = LongSerializer,
     overrideRootDirectory = Path("some/other/root"),
     overrideSnapshotFileResolver = { rootDirectory, testInfo, fileExtension ->
         val directory = rootDirectory.resolve(testInfo.testClass.get().name)
@@ -149,6 +160,7 @@ val snapshotter = snapshotContext.createSnapshotter(
 ## Deleting all snapshots
 
 If you want to start over, you can nuke all snapshots by running:
+
 ```shell
 ./gradlew clearSnapshots
 ```
