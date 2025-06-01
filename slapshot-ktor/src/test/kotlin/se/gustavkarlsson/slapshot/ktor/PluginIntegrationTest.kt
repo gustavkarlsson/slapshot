@@ -8,7 +8,8 @@ import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
+import io.ktor.http.ContentType.Application
+import io.ktor.http.ContentType.Text
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.parameters
@@ -61,7 +62,37 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("Hello, Server")
-                accept(ContentType.Text.Any)
+                accept(Text.Any)
+            }
+        }
+
+    @Test
+    fun `post and receive empty plain text`() =
+        testSnapshotting(
+            configureRouting = {
+                post("/") {
+                    call.respondText("")
+                }
+            },
+        ) {
+            post("/") {
+                setBody("")
+                accept(Text.Any)
+            }
+        }
+
+    @Test
+    fun `post and receive empty binary`() =
+        testSnapshotting(
+            configureRouting = {
+                post("/") {
+                    call.respondBytes(byteArrayOf(), Application.OctetStream)
+                }
+            },
+        ) {
+            post("/") {
+                setBody(byteArrayOf())
+                accept(Application.OctetStream)
             }
         }
 
@@ -72,15 +103,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = "\"Hello, Client\"",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("\"Hello, Server\"")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -91,15 +122,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = "\"\"",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("\"\"")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -110,15 +141,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = "7",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("5")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -129,15 +160,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = "7.7",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("5.5")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -148,15 +179,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = "null",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("null")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -167,15 +198,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = """{ "message": "Hello, Client", "length": 13 }""",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("""{ "message": "Hello, Server", "length": 13 }""")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -186,15 +217,15 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondText(
                         text = """[5, "six", 7.8]""",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             post("/") {
                 setBody("""[1, "two", 3.4]""")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -209,8 +240,8 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -225,8 +256,8 @@ class PluginIntegrationTest {
         ) {
             post("/") {
                 setBody("[")
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                accept(ContentType.Application.Json)
+                contentType(Application.Json.withCharset(Charsets.UTF_8))
+                accept(Application.Json)
             }
         }
 
@@ -237,13 +268,13 @@ class PluginIntegrationTest {
                 get("/") {
                     call.respondText(
                         text = "",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             get("/") {
-                accept(ContentType.Application.Json)
+                accept(Application.Json)
             }
         }
 
@@ -254,13 +285,13 @@ class PluginIntegrationTest {
                 get("/") {
                     call.respondText(
                         text = "[",
-                        contentType = ContentType.Application.Json.withCharset(Charsets.UTF_8),
+                        contentType = Application.Json.withCharset(Charsets.UTF_8),
                     )
                 }
             },
         ) {
             get("/") {
-                accept(ContentType.Application.Json)
+                accept(Application.Json)
             }
         }
 
@@ -274,7 +305,7 @@ class PluginIntegrationTest {
                 post("/") {
                     call.respondBytes(
                         "48656c6c6f2c20436c69656e74".hexToByteArray(),
-                        ContentType.Application.OctetStream,
+                        Application.OctetStream,
                     )
                 }
             },

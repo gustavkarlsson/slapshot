@@ -23,20 +23,30 @@ import java.util.Base64
 
 // FIXME clean up, and support more content types
 
-// FIXME content can be empty, even if not NoContent
+// FIXME Support ReadChannelContent? File uploads/downloads?
 internal fun requestBodyToJson(request: HttpRequest): String? {
     val jsonObject: JsonObject =
         when (val content = request.content) {
             is OutgoingContent.NoContent -> return null
-            is TextContent ->
+            is TextContent -> {
+                if (content.text.isEmpty()) return null
                 if (request.content.contentType?.match(ContentType.Application.Json) == true) {
                     jsonOrTextBody(content.text)
                 } else {
                     textBody(content.text)
                 }
+            }
 
-            is FormDataContent -> formDataBody(content.formData)
-            is ByteArrayContent, is OutgoingContent.ByteArrayContent -> binaryBase64Body(content.bytes())
+            is FormDataContent -> {
+                if (content.formData.isEmpty()) return null
+                formDataBody(content.formData)
+            }
+
+            is ByteArrayContent, is OutgoingContent.ByteArrayContent -> {
+                if (content.bytes().isEmpty()) return null
+                binaryBase64Body(content.bytes())
+            }
+
             is OutgoingContent.ProtocolUpgrade, is OutgoingContent.ReadChannelContent, is OutgoingContent.WriteChannelContent ->
                 throw IllegalArgumentException("Unsupported request content type: ${content::class.qualifiedName}")
         }
