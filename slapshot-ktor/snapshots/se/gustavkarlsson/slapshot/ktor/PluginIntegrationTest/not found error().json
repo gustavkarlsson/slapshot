@@ -1,0 +1,17 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*",
+            "Content-Length": "0"
+        }
+    },
+    "response": {
+        "status": 404,
+        "headers": {
+            "Content-Length": "0"
+        }
+    }
+}

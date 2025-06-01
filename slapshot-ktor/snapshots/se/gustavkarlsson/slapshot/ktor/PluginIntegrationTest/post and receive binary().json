@@ -1,0 +1,27 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*",
+            "Content-Type": "application/octet-stream",
+            "Content-Length": "13"
+        },
+        "body": {
+            "type": "binary-base64",
+            "data": "SGVsbG8sIFNlcnZlcg=="
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Length": "13",
+            "Content-Type": "application/octet-stream"
+        },
+        "body": {
+            "type": "binary-base64",
+            "data": "SGVsbG8sIENsaWVudA=="
+        }
+    }
+}

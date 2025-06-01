@@ -1,0 +1,25 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "http://localhost/",
+        "headers": {
+            "Multi-Request": [
+                "a",
+                "b"
+            ],
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*",
+            "Content-Length": "0"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Multi-Response": [
+                "a",
+                "b"
+            ],
+            "Content-Length": "0"
+        }
+    }
+}

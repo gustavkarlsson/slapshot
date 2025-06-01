@@ -1,0 +1,17 @@
+{
+    "request": {
+        "method": "GET",
+        "url": "http://localhost/?username=JetBrains&email=example%40jetbrains.com&password=foobar&tags=foo&tags=bar&weird=quote+%3E+%22+%3C+quote",
+        "headers": {
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*",
+            "Content-Length": "0"
+        }
+    },
+    "response": {
+        "status": 201,
+        "headers": {
+            "Content-Length": "0"
+        }
+    }
+}
