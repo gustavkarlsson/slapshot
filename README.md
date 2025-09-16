@@ -45,7 +45,7 @@ slapshot {
 **JUnit 5**
 
 ```kotlin
- @ExtendWith(SnapshotExtension::class)
+@ExtendWith(SnapshotExtension::class)
 class MyTests {
     private lateinit var snapshotter: Snapshotter<String>
 
