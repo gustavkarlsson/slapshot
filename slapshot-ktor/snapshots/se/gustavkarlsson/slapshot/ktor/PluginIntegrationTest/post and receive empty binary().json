@@ -1,0 +1,19 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept": "application/octet-stream",
+            "Accept-Charset": "UTF-8",
+            "Content-Type": "application/octet-stream",
+            "Content-Length": "0"
+        }
+    },
+    "response": {
+        "status": 200,
+        "headers": {
+            "Content-Length": "0",
+            "Content-Type": "application/octet-stream"
+        }
+    }
+}

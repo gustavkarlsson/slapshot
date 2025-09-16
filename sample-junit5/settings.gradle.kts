@@ -1,14 +1,14 @@
 @Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositories {
-        mavenLocal()
+        mavenLocal() // Only needed for the slapshot plugin development
         mavenCentral()
     }
 }
 
 pluginManagement {
     repositories {
-        mavenLocal()
+        mavenLocal() // Only needed for the slapshot plugin development
         gradlePluginPortal()
     }
 }

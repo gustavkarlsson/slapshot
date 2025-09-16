@@ -1,0 +1,30 @@
+{
+    "request": {
+        "method": "POST",
+        "url": "http://localhost/",
+        "headers": {
+            "Accept-Charset": "UTF-8",
+            "Accept": "*/*",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "Content-Length": "82"
+        },
+        "body": {
+            "type": "form-data",
+            "data": {
+                "username": "JetBrains",
+                "email": "example@jetbrains.com",
+                "password": "foobar",
+                "tags": [
+                    "foo",
+                    "bar"
+                ]
+            }
+        }
+    },
+    "response": {
+        "status": 201,
+        "headers": {
+            "Content-Length": "0"
+        }
+    }
+}

@@ -3,10 +3,9 @@
 
 # Intellij
 *.iml
-/.idea/*
+.idea
+.kotlin
 
 # Gradle
 .gradle
-gradle.properties
-/local.properties
 /build
