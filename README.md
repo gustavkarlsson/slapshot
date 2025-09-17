@@ -1,5 +1,7 @@
 # Slapshot - A snapshot testing library for Kotlin
 
+[![Checks](https://github.com/gustavkarlsson/slapshot/actions/workflows/checks.yaml/badge.svg)](https://github.com/gustavkarlsson/slapshot/actions/workflows/checks.yaml)
+
 ## About snapshot testing
 
 Snapshot testing is a type of software testing where the output of a piece of code (such as a function, UI component, or
