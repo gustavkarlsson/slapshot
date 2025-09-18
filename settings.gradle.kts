@@ -14,6 +14,7 @@ include(
     "slapshot-junit5",
     "slapshot-json",
     "slapshot-ktor3",
+    "slapshot-images",
     "slapshot-plugin",
     "slapshot-bom",
 )

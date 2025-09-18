@@ -1,4 +1,5 @@
 # TODO:s
+* Finish implementing and test image snapshots
 
 ## Before next release
 * Setup library API stability check
