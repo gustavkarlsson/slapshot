@@ -5,7 +5,6 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.notExists
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 
@@ -21,6 +20,9 @@ public class DefaultSnapshotter<T, TI>(
 ) : Snapshotter<T> {
     override fun snapshot(data: T) {
         val file = snapshotFileResolver.resolve(rootDirectory, getTestInfo(), serializer.fileExtension)
+        require(rootDirectory.isAncestorOf(file)) {
+            "Resolved snapshot file is outside of rootDirectory: '$file' (root: '$rootDirectory')"
+        }
         when (action) {
             SnapshotAction.CompareOnly -> compareOnly(file, data)
             SnapshotAction.CompareAndAdd -> compareAndAdd(file, data)
@@ -32,10 +34,11 @@ public class DefaultSnapshotter<T, TI>(
         expectedFile: Path,
         actual: T,
     ) {
-        if (expectedFile.notExists()) {
+        if (expectedFile.exists()) {
+            compareSnapshot(expectedFile, actual)
+        } else {
             onFail("Snapshot not found: '$expectedFile'")
         }
-        compareSnapshot(expectedFile, actual)
     }
 
     private fun compareAndAdd(
@@ -89,4 +92,10 @@ public class DefaultSnapshotter<T, TI>(
         file.parent.createDirectories()
         file.writeBytes(bytes, *options)
     }
+}
+
+private fun Path.isAncestorOf(file: Path): Boolean {
+    val normalizedAncestor = this.toAbsolutePath().normalize()
+    val normalizedChild = file.toAbsolutePath().normalize()
+    return normalizedChild.startsWith(normalizedAncestor)
 }

@@ -18,22 +18,20 @@ public interface SnapshotContext<TI> {
      *
      * @param serializer Serializes/deserializes snapshots so they can be stored as files.
      * @param tester Compares two snapshots for equality.
-     * @param overrideRootDirectory An optional root directory to override the default directory for storing snapshots.
-     * @param overrideSnapshotFileResolver An optional resolver to override the default logic for resolving snapshot file paths.
+     * @param overrideSnapshotFileResolver An optional resolver to override the default logic for resolving snapshot file paths. *Note: The snapshot file MUST be somewhere within the root directory*
      * @param overrideAction An optional action to override the default behavior for handling snapshots.
      * @return A new snapshotter configured with the specified parameters.
      */
     public fun <T> createSnapshotter(
         serializer: Serializer<T>,
         tester: Tester<T> = EqualsTester,
-        overrideRootDirectory: Path? = null,
         overrideSnapshotFileResolver: SnapshotFileResolver<TI>? = null,
         overrideAction: SnapshotAction? = null,
     ): Snapshotter<T>
 }
 
 @InternalSlapshotApi
-public fun getDefaultRootDirectory(): Path {
+public fun getRootDirectory(): Path {
     val dirString = System.getProperty("snapshotRootDir") ?: "snapshots"
     return Paths.get(dirString)
 }
@@ -45,6 +43,6 @@ public fun getAction(): SnapshotAction {
         "compareOnly" -> SnapshotAction.CompareOnly
         "compareAndAdd" -> SnapshotAction.CompareAndAdd
         "overwrite" -> SnapshotAction.Overwrite
-        else -> error("Unsupported action: $actionString")
+        else -> error("Unsupported snapshotAction: $actionString")
     }
 }

@@ -10,8 +10,7 @@ import se.gustavkarlsson.slapshot.core.SnapshotFileResolver
 import se.gustavkarlsson.slapshot.core.Snapshotter
 import se.gustavkarlsson.slapshot.core.Tester
 import se.gustavkarlsson.slapshot.core.getAction
-import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
-import java.nio.file.Path
+import se.gustavkarlsson.slapshot.core.getRootDirectory
 
 /**
  * Snapshot context implementation for JUnit 5 Jupiter.
@@ -24,13 +23,12 @@ public class JUnit5SnapshotContext internal constructor(
     override fun <T> createSnapshotter(
         serializer: Serializer<T>,
         tester: Tester<T>,
-        overrideRootDirectory: Path?,
         overrideSnapshotFileResolver: SnapshotFileResolver<TestInfo>?,
         overrideAction: SnapshotAction?,
     ): Snapshotter<T> =
         DefaultSnapshotter(
             snapshotFileResolver = overrideSnapshotFileResolver ?: JUnit5SnapshotFileResolver,
-            rootDirectory = overrideRootDirectory ?: getDefaultRootDirectory(),
+            rootDirectory = getRootDirectory(),
             getTestInfo = ::testInfo,
             serializer = serializer,
             tester = tester,

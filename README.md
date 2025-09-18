@@ -141,7 +141,7 @@ The plugin can be configured in an optional extension block:
 slapshot {
     testFramework.set(TestFramework.JUnit4) // Only necessary for JUnit4
     snapshotRootDir.set("my/awesome/snapshots") // Relative to project root
-    defaultAction.set(SnapshotAction.CompareOnly) // Change how snapshots are handled
+    snapshotAction.set(SnapshotAction.CompareOnly) // Change how snapshots are handled
 }
 ```
 
@@ -152,7 +152,7 @@ Some settings can be overridden with
 This can be useful for CI environments.
 
 ```shell
-./gradlew test -PsnapshotRootDir="my/snapshots" -PdefaultAction=compareOnly
+./gradlew test -PsnapshotRootDir="my/snapshots" -PsnapshotAction=compareOnly
 ```
 
 ### In runtime
@@ -162,7 +162,6 @@ When you create a `Snapshotter` from a `SnapshotContext`, you can override some 
 ```kotlin
 val snapshotter = snapshotContext.createSnapshotter(
     serializer = LongSerializer,
-    overrideRootDirectory = Path("some/other/root"),
     overrideSnapshotFileResolver = { rootDirectory, testInfo, fileExtension ->
         val directory = rootDirectory.resolve(testInfo.testClass.get().name)
         val fileName = "${testInfo.displayName}_snapshot.$fileExtension"

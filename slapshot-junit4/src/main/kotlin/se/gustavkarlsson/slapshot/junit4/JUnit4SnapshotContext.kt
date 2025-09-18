@@ -11,8 +11,7 @@ import se.gustavkarlsson.slapshot.core.SnapshotFileResolver
 import se.gustavkarlsson.slapshot.core.Snapshotter
 import se.gustavkarlsson.slapshot.core.Tester
 import se.gustavkarlsson.slapshot.core.getAction
-import se.gustavkarlsson.slapshot.core.getDefaultRootDirectory
-import java.nio.file.Path
+import se.gustavkarlsson.slapshot.core.getRootDirectory
 
 /**
  * Snapshot context implementation for JUnit 4.
@@ -49,13 +48,12 @@ public class JUnit4SnapshotContext : SnapshotContext<Description>, TestWatcher()
     override fun <T> createSnapshotter(
         serializer: Serializer<T>,
         tester: Tester<T>,
-        overrideRootDirectory: Path?,
         overrideSnapshotFileResolver: SnapshotFileResolver<Description>?,
         overrideAction: SnapshotAction?,
     ): Snapshotter<T> =
         DefaultSnapshotter(
             snapshotFileResolver = overrideSnapshotFileResolver ?: JUnit4SnapshotFileResolver,
-            rootDirectory = overrideRootDirectory ?: getDefaultRootDirectory(),
+            rootDirectory = getRootDirectory(),
             getTestInfo = {
                 requireNotNull(description) { "Description not set. Test may not have been started yet." }
             },
