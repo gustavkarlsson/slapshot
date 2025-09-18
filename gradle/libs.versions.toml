@@ -11,6 +11,7 @@ gradle-plugin-publish = "1.2.1"
 maven-publish = "0.31.0"
 dokka = "2.0.0"
 ktor = "3.2.0"
+jimfs = "1.3.0"
 
 [libraries]
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlin-serialization" }
@@ -19,6 +20,7 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
+jimfs = { module = "com.google.jimfs:jimfs", version.ref = "jimfs" }
 
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit5" }
 junit-jupiter-aggregator = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit5" }

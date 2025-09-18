@@ -5,7 +5,6 @@ import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import kotlin.io.path.createDirectories
 import kotlin.io.path.exists
-import kotlin.io.path.notExists
 import kotlin.io.path.readBytes
 import kotlin.io.path.writeBytes
 
@@ -35,10 +34,11 @@ public class DefaultSnapshotter<T, TI>(
         expectedFile: Path,
         actual: T,
     ) {
-        if (expectedFile.notExists()) {
+        if (expectedFile.exists()) {
+            compareSnapshot(expectedFile, actual)
+        } else {
             onFail("Snapshot not found: '$expectedFile'")
         }
-        compareSnapshot(expectedFile, actual)
     }
 
     private fun compareAndAdd(

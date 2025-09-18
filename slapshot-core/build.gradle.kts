@@ -1,6 +1,7 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import com.vanniktech.maven.publish.SonatypeHost
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.jvm)
@@ -18,6 +19,11 @@ dependencies {
     testImplementation(libs.junit.jupiter.aggregator)
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.strikt)
+    testImplementation(libs.jimfs)
+}
+
+tasks.withType<KotlinCompile> {
+    compilerOptions.freeCompilerArgs.add("-opt-in=se.gustavkarlsson.slapshot.core.InternalSlapshotApi")
 }
 
 tasks.test {

@@ -1,7 +1,6 @@
 # TODO:s
 
 ## Before next release
-* Add tests for DefaultSnapshotter (needs virtual FS?)
 * Extract buffered image lib (and remove dependency on coroutines from core)
 
 ## At some point
