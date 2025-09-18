@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.JavaPlatform
-import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
     `java-platform`
@@ -21,7 +20,7 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    publishToMavenCentral()
     configure(JavaPlatform())
     pom {
         name.set("Slapshot BOM")

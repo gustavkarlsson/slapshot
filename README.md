@@ -15,7 +15,7 @@ Slapshot is a Kotlin library with an accompanying Gradle Plugin that integrates 
 such as JUnit 4 and 5.
 
 You create unit tests as per usual, but instead of assertions you call `snapshotter.snapshot(data)` on some piece of data.
-The data will be compared to the previously saved data, and fail the test if the differ.
+The data will be compared to the previously saved data and fail the test if they differ.
 
 With an extensible architecture, Slapshot enables you to snapshot test any data that can be serialized.
 
@@ -23,7 +23,7 @@ Some examples of built-in type support:
 
 * Primitives such as numbers and strings
 * Collections like lists, sets, and maps
-* Java time types, such as instants, durations and dates
+* Java time types, such as instants, durations, and dates
 * JSON data
 
 But you can also implement your own serializer to suit your own needs.
@@ -56,8 +56,8 @@ class MyTests {
 
     @BeforeEach
     fun initSnapshotContext(snapshotContext: JUnit5SnapshotContext) {
-        val serializer = StringSerializer() // There are many more available!
-        snapshotter = snapshotContext.createSnapshotter(serializer)
+        // Configure the snapshotter for your purposes
+        snapshotter = snapshotContext.createSnapshotter(StringSerializer())
     }
 }
 ```
@@ -69,21 +69,21 @@ class MyTests {
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
     val snapshotter = let {
-        val serializer = StringSerializer() // There are many more available!
-        snapshotContext.createSnapshotter(serializer)
+        // Configure the snapshotter for your purposes
+        snapshotContext.createSnapshotter(StringSerializer())
     }
 }
 ```
 
 ### Write a test
 
-Here is an example string concatenation test:
+Here is an example string manipulation test:
 
 ```kotlin
 class MyTests {
     @Test
     fun `test string`() {
-        val result = "foo" + "bar"
+        val result = reverseString("foobar")
         snapshotter.snapshot(result)
     }
 }
@@ -94,7 +94,7 @@ class MyTests {
 The first time a new test runs, there will be no snapshot to compare against. The test will fail and save a snapshot
 file with the results for future reference.
 
-The next time you run the test, it will compare the result to the saved snapshot and succeed!
+The next time you run the test, it will compare the result with the saved snapshot and succeed!
 
 ### Commit the snapshots to source control
 
@@ -109,12 +109,9 @@ Slapshot comes with many serializers out of the box. Check them out or implement
 
 ## Testing complex data
 
-By default, Slapshot compares snapshots by equality, but sometimes a more sophisticated comparison might be necessary.
-For example:
-
-* Some types may not have a working `equals()` function.
-* Some types don't have a useful `toString()` to provide meaningful error messages.
-* Some types, such as floating point types or lossy data types, might need to be compared with some degree of tolerance.
+By default, Slapshot compares snapshots by equality, but sometimes more sophisticated comparisons are needed.
+For example, floating point types and lossy data types might need to be compared with some degree of tolerance.
+Large data structures such as JSON or graphs could benefit from pointing out the location of the mismatch.
 
 Slapshot uses a `Tester` interface to handle comparisons and produce error messages.
 Some are included, but you can easily implement your own.
@@ -129,17 +126,17 @@ Add them as test dependencies like this:
 dependencies {
     // Omit the version. The Slapshot Gradle plugin sets the correct one.
     testImplementation("se.gustavkarlsson.slapshot:slapshot-json") // Create and test JSON snapshots
-    testImplementation("se.gustavkarlsson.slapshot:slapshot-ktor3") // Test ktor requests and responses
+    testImplementation("se.gustavkarlsson.slapshot:slapshot-ktor3") // Test ktor requests and responses (see sample)
 }
 ```
 
 ## Configuration
 
-Slapshot can be configured in multiple different ways.
+Slapshot can be configured in different ways.
 
 ### build.gradle.kts
 
-The plugin can be configured with extension block:
+The plugin can be configured with an extension block:
 
 ```kotlin
 slapshot {
@@ -153,15 +150,16 @@ slapshot {
 
 Some settings can be overridden with
 [Gradle project properties](https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties).
-This can be useful for CI environments.
 
 ```shell
 ./gradlew test -PsnapshotRootDir="my/snapshots" -PsnapshotAction=compareOnly
 ```
 
+`-PsnapshotAction=compareOnly` is recommended for CI environments to avoid creating new files.
+
 ### In runtime
 
-When you create a `Snapshotter` from a `SnapshotContext`, you can override some configuration on a one-off basis.
+When you create a `Snapshotter` from a `SnapshotContext`, you can override some configuration for each snapshotter instance.
 
 ```kotlin
 val snapshotter = snapshotContext.createSnapshotter(
