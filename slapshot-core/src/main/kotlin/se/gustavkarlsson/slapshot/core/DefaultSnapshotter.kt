@@ -21,6 +21,9 @@ public class DefaultSnapshotter<T, TI>(
 ) : Snapshotter<T> {
     override fun snapshot(data: T) {
         val file = snapshotFileResolver.resolve(rootDirectory, getTestInfo(), serializer.fileExtension)
+        require(rootDirectory.isAncestorOf(file)) {
+            "Resolved snapshot file is outside of rootDirectory: '$file' (root: '$rootDirectory')"
+        }
         when (action) {
             SnapshotAction.CompareOnly -> compareOnly(file, data)
             SnapshotAction.CompareAndAdd -> compareAndAdd(file, data)
@@ -89,4 +92,10 @@ public class DefaultSnapshotter<T, TI>(
         file.parent.createDirectories()
         file.writeBytes(bytes, *options)
     }
+}
+
+private fun Path.isAncestorOf(file: Path): Boolean {
+    val normalizedAncestor = this.toAbsolutePath().normalize()
+    val normalizedChild = file.toAbsolutePath().normalize()
+    return normalizedChild.startsWith(normalizedAncestor)
 }
