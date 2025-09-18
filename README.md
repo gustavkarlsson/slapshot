@@ -4,7 +4,7 @@
 
 ## About snapshot testing
 
-Snapshot testing is a type of software testing where the output of a piece of code (such as a function, UI component, or
+Snapshot testing is a type of regression testing where the output some code (such as a function, UI component, or
 API response) is captured and stored as a "snapshot." This snapshot serves as a reference for future test runs. During
 subsequent tests, the new output is compared to the stored snapshot to ensure that the behavior of the code has not
 changed unexpectedly.
@@ -14,16 +14,19 @@ changed unexpectedly.
 Slapshot is a Kotlin library with an accompanying Gradle Plugin that integrates with test frameworks
 such as JUnit 4 and 5.
 
-With an extensible architecture, it enables you to snapshot test almost any data imaginable.
-If it can be serialized, you can snapshot test with it!
+You create unit tests as per usual, but instead of assertions you call `snapshotter.snapshot(data)` on some piece of data.
+The data will be compared to the previously saved data, and fail the test if the differ.
+
+With an extensible architecture, Slapshot enables you to snapshot test any data that can be serialized.
 
 Some examples of built-in type support:
 
 * Primitives such as numbers and strings
-* Lists, sets, and maps
-* Image bitmaps with variable tolerance levels (good for screenshots!)
+* Collections like lists, sets, and maps
+* Java time types, such as instants, durations and dates
+* JSON data
 
-But you can also implement your own serializer, such as for web server requests/responses, or mp3 files.
+But you can also implement your own serializer to suit your own needs.
 
 ## Getting Started
 
@@ -42,7 +45,7 @@ slapshot {
 }
 ```
 
-### Set up a test class
+### Set up a test class with a snapshotter
 
 **JUnit 5**
 
@@ -53,7 +56,7 @@ class MyTests {
 
     @BeforeEach
     fun initSnapshotContext(snapshotContext: JUnit5SnapshotContext) {
-        val serializer = StringSerializer()
+        val serializer = StringSerializer() // There are many more available!
         snapshotter = snapshotContext.createSnapshotter(serializer)
     }
 }
@@ -66,7 +69,7 @@ class MyTests {
     @get:Rule
     val snapshotContext = JUnit4SnapshotContext()
     val snapshotter = let {
-        val serializer = StringSerializer()
+        val serializer = StringSerializer() // There are many more available!
         snapshotContext.createSnapshotter(serializer)
     }
 }
@@ -91,7 +94,7 @@ class MyTests {
 The first time a new test runs, there will be no snapshot to compare against. The test will fail and save a snapshot
 file with the results for future reference.
 
-The next time it runs, it will compare the result to the saved snapshot and succeed!
+The next time you run the test, it will compare the result to the saved snapshot and succeed!
 
 ### Commit the snapshots to source control
 
@@ -110,22 +113,23 @@ By default, Slapshot compares snapshots by equality, but sometimes a more sophis
 For example:
 
 * Some types may not have a working `equals()` function.
-* Some types don't have a useful `toString()` for error messages.
-* Some types, such as floating point types, might need to be compared with some level of tolerance.
+* Some types don't have a useful `toString()` to provide meaningful error messages.
+* Some types, such as floating point types or lossy data types, might need to be compared with some degree of tolerance.
 
 Slapshot uses a `Tester` interface to handle comparisons and produce error messages.
-Some are included, but you can also implement your own too.
+Some are included, but you can easily implement your own.
 
 ## Extension libraries
 
 The project includes additional libraries to extend its capabilities.
 
-Apply them like this:
+Add them as test dependencies like this:
 
 ```kotlin
 dependencies {
     // Omit the version. The Slapshot Gradle plugin sets the correct one.
     testImplementation("se.gustavkarlsson.slapshot:slapshot-json") // Create and test JSON snapshots
+    testImplementation("se.gustavkarlsson.slapshot:slapshot-ktor") // Test ktor requests and responses
 }
 ```
 
@@ -135,12 +139,12 @@ Slapshot can be configured in multiple different ways.
 
 ### build.gradle.kts
 
-The plugin can be configured in an optional extension block:
+The plugin can be configured with extension block:
 
 ```kotlin
 slapshot {
-    testFramework.set(TestFramework.JUnit4) // Only necessary for JUnit4
-    snapshotRootDir.set("my/awesome/snapshots") // Relative to project root
+    testFramework.set(TestFramework.JUnit4) // JUnit5 is default
+    snapshotRootDir.set("my/awesome/snapshots") // Where snapshots are stored
     snapshotAction.set(SnapshotAction.CompareOnly) // Change how snapshots are handled
 }
 ```
