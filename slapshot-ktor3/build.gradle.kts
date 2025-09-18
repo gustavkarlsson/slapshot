@@ -48,8 +48,8 @@ mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate")))
     pom {
-        name.set("Slapshot Ktor")
-        description.set("A slapshot extension for Ktor")
+        name.set("Slapshot Ktor 3")
+        description.set("A slapshot extension for Ktor 3")
         inceptionYear.set("2025")
         url.set("https://github.com/gustavkarlsson/slapshot/")
         licenses {

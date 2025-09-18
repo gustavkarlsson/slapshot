@@ -13,7 +13,7 @@ include(
     "slapshot-junit4",
     "slapshot-junit5",
     "slapshot-json",
-    "slapshot-ktor",
+    "slapshot-ktor3",
     "slapshot-plugin",
     "slapshot-bom",
 )

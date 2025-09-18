@@ -25,5 +25,5 @@ dependencies {
     testImplementation("io.ktor:ktor-server-test-host")
     testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    implementation("se.gustavkarlsson.slapshot:slapshot-ktor") // Plugin sets version automatically
+    implementation("se.gustavkarlsson.slapshot:slapshot-ktor3") // Plugin sets version automatically
 }

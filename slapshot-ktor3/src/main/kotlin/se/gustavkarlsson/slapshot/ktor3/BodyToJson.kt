@@ -1,4 +1,4 @@
-package se.gustavkarlsson.slapshot.ktor
+package se.gustavkarlsson.slapshot.ktor3
 
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequest

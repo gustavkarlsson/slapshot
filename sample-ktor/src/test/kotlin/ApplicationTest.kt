@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import se.gustavkarlsson.slapshot.junit5.JUnit5SnapshotContext
 import se.gustavkarlsson.slapshot.junit5.SnapshotExtension
-import se.gustavkarlsson.slapshot.ktor.SnapshotTesting
+import se.gustavkarlsson.slapshot.ktor3.SnapshotTesting
 import se.gustavkarlsson.slapshot.json.JsonErrorStyle
 
 @ExtendWith(SnapshotExtension::class)
