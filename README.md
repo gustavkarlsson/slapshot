@@ -129,7 +129,7 @@ Add them as test dependencies like this:
 dependencies {
     // Omit the version. The Slapshot Gradle plugin sets the correct one.
     testImplementation("se.gustavkarlsson.slapshot:slapshot-json") // Create and test JSON snapshots
-    testImplementation("se.gustavkarlsson.slapshot:slapshot-ktor") // Test ktor requests and responses
+    testImplementation("se.gustavkarlsson.slapshot:slapshot-ktor3") // Test ktor requests and responses
 }
 ```
 
