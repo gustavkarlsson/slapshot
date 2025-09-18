@@ -9,6 +9,8 @@ import java.nio.file.Path
  * and located within the root directory. The implementation can use test information and the file extension
  * to customize the resolution process.
  *
+ *  *Note: The snapshot file MUST be somewhere within the root directory*
+ *
  * @param TI Type of test information required for resolving the snapshot file path.
  */
 public fun interface SnapshotFileResolver<TI> {

@@ -162,7 +162,6 @@ When you create a `Snapshotter` from a `SnapshotContext`, you can override some 
 ```kotlin
 val snapshotter = snapshotContext.createSnapshotter(
     serializer = LongSerializer,
-    overrideRootDirectory = Path("some/other/root"),
     overrideSnapshotFileResolver = { rootDirectory, testInfo, fileExtension ->
         val directory = rootDirectory.resolve(testInfo.testClass.get().name)
         val fileName = "${testInfo.displayName}_snapshot.$fileExtension"
