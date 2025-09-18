@@ -14,8 +14,6 @@ group = extra["mavenGroup"]!!
 version = findProperty("releaseVersion") as String
 
 dependencies {
-    implementation(libs.kotlin.coroutines)
-
     testImplementation(libs.junit.jupiter.aggregator)
     testRuntimeOnly(libs.junit.platform.launcher)
     testImplementation(libs.strikt)
