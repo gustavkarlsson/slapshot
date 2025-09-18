@@ -25,7 +25,7 @@ mavenPublishing {
     configure(JavaPlatform())
     pom {
         name.set("Slapshot BOM")
-        description.set("A snapshot testing library for Kotlin")
+        description.set("The slapshot Bill Of Materials")
         inceptionYear.set("2025")
         url.set("https://github.com/gustavkarlsson/slapshot/")
         licenses {

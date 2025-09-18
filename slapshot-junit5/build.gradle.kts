@@ -41,7 +41,7 @@ mavenPublishing {
     configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate")))
     pom {
         name.set("Slapshot JUnit 5")
-        description.set("A snapshot testing library for Kotlin")
+        description.set("A slapshot extension for JUnit 5")
         inceptionYear.set("2025")
         url.set("https://github.com/gustavkarlsson/slapshot/")
         licenses {

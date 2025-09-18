@@ -46,7 +46,7 @@ mavenPublishing {
     configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate")))
     pom {
         name.set("Slapshot Ktor")
-        description.set("A snapshot testing library for Kotlin")
+        description.set("A slapshot extension for Ktor")
         inceptionYear.set("2025")
         url.set("https://github.com/gustavkarlsson/slapshot/")
         licenses {
