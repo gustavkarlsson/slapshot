@@ -24,6 +24,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.test {
     useJUnit()
+    val snapshotsDir = project.layout.projectDirectory.dir("snapshots")
+    inputs.files(snapshotsDir)
+    outputs.files(fileTree(snapshotsDir))
 }
 
 kotlin {
