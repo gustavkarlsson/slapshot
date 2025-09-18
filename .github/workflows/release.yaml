@@ -39,7 +39,7 @@ jobs:
           ./gradlew publishAndReleaseToMavenCentral --no-configuration-cache \
             -PmavenCentralUsername='${{ secrets.MAVEN_CENTRAL_PUBLISHER_USERNAME }}' \
             -PmavenCentralPassword='${{ secrets.MAVEN_CENTRAL_PUBLISHER_PASSWORD }}' \
-            -signAllPublications=true \
+            -PsignAllPublications=true \
             -PsigningKey='${{ secrets.GPG_PRIVATE_KEY }}' \
             -PsigningPassword='${{ secrets.GPG_PASSPHRASE }}' \
             -PreleaseVersion='${{ github.event.inputs.version }}'
