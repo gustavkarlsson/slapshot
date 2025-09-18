@@ -43,6 +43,6 @@ public fun getAction(): SnapshotAction {
         "compareOnly" -> SnapshotAction.CompareOnly
         "compareAndAdd" -> SnapshotAction.CompareAndAdd
         "overwrite" -> SnapshotAction.Overwrite
-        else -> error("Unsupported action: $actionString")
+        else -> error("Unsupported snapshotAction: $actionString")
     }
 }

@@ -18,7 +18,7 @@ import java.util.Properties
 private const val EXTENSION_NAME = "slapshot"
 private const val DEFAULT_SNAPSHOT_ROOT_DIR_NAME = "snapshots"
 private const val PROPERTY_KEY_SNAPSHOT_ROOT_DIR = "snapshotRootDir"
-private const val PROPERTY_KEY_DEFAULT_ACTION = "defaultAction"
+private const val PROPERTY_KEY_SNAPSHOT_ACTION = "snapshotAction"
 private const val ACTION_VALUE_COMPARE_ONLY = "compareOnly"
 private const val ACTION_VALUE_COMPARE_AND_ADD = "compareAndAdd"
 private const val ACTION_VALUE_OVERWRITE = "overwrite"
@@ -47,7 +47,7 @@ private fun Project.createExtension(): SlapshotPluginExtension {
         logger.info("Setting default snapshot root dir to $defaultSnapshotRootDir")
         testFramework.convention(TestFramework.JUnit5)
         snapshotRootDir.convention(defaultSnapshotRootDir)
-        defaultAction.convention(SnapshotAction.CompareAndAdd)
+        snapshotAction.convention(SnapshotAction.CompareAndAdd)
     }
 }
 
@@ -113,20 +113,20 @@ private fun Project.configure(
     clearSnapshotsTask: TaskProvider<Delete>,
 ) {
     val snapshotRootDir = getSnapshotRootDir(extension)
-    val defaultAction = getDefaultAction(extension)
+    val snapshotAction = getSnapshotAction(extension)
     clearSnapshotsTask.configure {
         delete(snapshotRootDir)
     }
     tasks.withType<Test> {
         mustRunAfter(clearSnapshotsTask) // Only applicable if clearSnapshots DOES run
         inputs.files(fileTree(snapshotRootDir))
-        inputs.property(PROPERTY_KEY_DEFAULT_ACTION, defaultAction)
+        inputs.property(PROPERTY_KEY_SNAPSHOT_ACTION, snapshotAction)
         outputs.files(fileTree(snapshotRootDir))
 
         logger.info("Setting $PROPERTY_KEY_SNAPSHOT_ROOT_DIR system property to $snapshotRootDir")
         systemProperty(PROPERTY_KEY_SNAPSHOT_ROOT_DIR, snapshotRootDir)
-        logger.info("Setting $PROPERTY_KEY_DEFAULT_ACTION system property to $defaultAction")
-        systemProperty(PROPERTY_KEY_DEFAULT_ACTION, defaultAction.systemProperty)
+        logger.info("Setting $PROPERTY_KEY_SNAPSHOT_ACTION system property to ${snapshotAction.systemProperty}")
+        systemProperty(PROPERTY_KEY_SNAPSHOT_ACTION, snapshotAction.systemProperty)
     }
 }
 
@@ -141,18 +141,18 @@ private fun Project.getSnapshotRootDir(extension: SlapshotPluginExtension): File
     }
 }
 
-private fun Project.getDefaultAction(extension: SlapshotPluginExtension): SnapshotAction {
+private fun Project.getSnapshotAction(extension: SlapshotPluginExtension): SnapshotAction {
     val property =
-        when (findProperty(PROPERTY_KEY_DEFAULT_ACTION)) {
+        when (findProperty(PROPERTY_KEY_SNAPSHOT_ACTION)) {
             ACTION_VALUE_COMPARE_ONLY -> SnapshotAction.CompareOnly
             ACTION_VALUE_COMPARE_AND_ADD -> SnapshotAction.CompareAndAdd
             ACTION_VALUE_OVERWRITE -> SnapshotAction.Overwrite
             else -> null
         }
     if (property != null) {
-        logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from project properties")
+        logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ACTION from project properties")
         return property
     }
-    logger.debug("Using $PROPERTY_KEY_DEFAULT_ACTION from extension")
-    return extension.defaultAction.get()
+    logger.debug("Using $PROPERTY_KEY_SNAPSHOT_ACTION from extension")
+    return extension.snapshotAction.get()
 }
