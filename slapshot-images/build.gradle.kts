@@ -1,6 +1,5 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -15,10 +14,10 @@ version = findProperty("releaseVersion") as String
 
 dependencies {
     api(project(":slapshot-core"))
-    implementation(libs.kotlin.coroutines)
 
     testImplementation(libs.junit.jupiter.aggregator)
     testRuntimeOnly(libs.junit.platform.launcher)
+    testImplementation(project(":slapshot-junit5"))
     testImplementation(libs.strikt)
 }
 
@@ -35,7 +34,7 @@ kotlin {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    publishToMavenCentral()
     configure(KotlinJvm(javadocJar = JavadocJar.Dokka("dokkaGenerate")))
     pom {
         name.set("Slapshot Images")
