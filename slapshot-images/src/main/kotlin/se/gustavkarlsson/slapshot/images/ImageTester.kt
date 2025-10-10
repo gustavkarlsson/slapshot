@@ -3,7 +3,10 @@ package se.gustavkarlsson.slapshot.images
 import se.gustavkarlsson.slapshot.core.Tester
 import java.awt.image.BufferedImage
 import java.awt.image.Raster
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.stream.IntStream
+import javax.imageio.ImageIO
 import kotlin.math.pow
 
 /**
@@ -20,6 +23,10 @@ public data class ImageTester(
      * Defines how two individual pixels are compared between the actual and expected images.
      */
     val pixelComparator: PixelComparator = PixelComparator.Scaled,
+    /**
+     * If set, will use the provided generator to generate a diff image and include its path in the error message.
+     */
+    val diffImageGenerator: DiffImageGenerator? = null,
 ) : Tester<BufferedImage> {
     init {
         require(tolerance in 0.0..1.0) {
@@ -32,9 +39,17 @@ public data class ImageTester(
         expected: BufferedImage,
     ): String? {
         testMetadata(actual, expected)?.let { error -> return error }
-        val difference = getDifference(actual, expected)
-        return if (difference > tolerance) {
-            "Images differ by $difference"
+        val diffMatrix = getDiffMatrix(actual, expected)
+        val differance = diffMatrix.sequence().average()
+        return if (differance > tolerance) {
+            if (diffImageGenerator != null) {
+                val diffImage = diffImageGenerator.generateDiffImage(actual, expected, diffMatrix)
+                // FIXME hard-code png?
+                val diffImagePath = writeToTempFile(diffImage, "png").toAbsolutePath()
+                "Images differ by $differance. Diff image written to: $diffImagePath"
+            } else {
+                "Images differ by $differance"
+            }
         } else {
             null
         }
@@ -84,26 +99,24 @@ public data class ImageTester(
             else -> "UNKNOWN($type)"
         }
 
-    private fun getDifference(
+    private fun getDiffMatrix(
         actual: BufferedImage,
         expected: BufferedImage,
-    ): Double {
+    ): DiffMatrixImpl {
         val pixelCount = actual.width * actual.height
-        val componentBitDepths =
-            List(actual.colorModel.numComponents) { i ->
-                actual.colorModel.componentSize[i]
-            }
-        return IntStream.range(0, pixelCount)
-            .parallel()
-            .mapToDouble { pixelIndex ->
-                val x = pixelIndex % actual.width
-                val y = pixelIndex / actual.width
-                val actualPixel = actual.raster.getNormalizedPixel(x, y, componentBitDepths)
-                val expectedPixel = expected.raster.getNormalizedPixel(x, y, componentBitDepths)
-                pixelComparator.getDifference(actualPixel, expectedPixel)
-            }
-            .average()
-            .orElse(0.0)
+        val componentBitDepths = actual.componentBitDepths
+        val diffData =
+            IntStream.range(0, pixelCount)
+                .parallel()
+                .mapToDouble { pixelIndex ->
+                    val x = pixelIndex % actual.width
+                    val y = pixelIndex / actual.width
+                    val actualPixel = actual.raster.getNormalizedPixel(x, y, componentBitDepths)
+                    val expectedPixel = expected.raster.getNormalizedPixel(x, y, componentBitDepths)
+                    pixelComparator.getDifference(actualPixel, expectedPixel)
+                }
+                .toArray()
+        return DiffMatrixImpl(width = actual.width, height = actual.height, data = diffData)
     }
 }
 
@@ -124,4 +137,19 @@ private fun FloatArray.normalizeComponents(componentBitDepths: List<Int>) {
         val maxValue = 2f.pow(bitDepth)
         this[index] = this[index] / maxValue
     }
+}
+
+private val BufferedImage.componentBitDepths: List<Int>
+    get() =
+        List(colorModel.numComponents) { i ->
+            colorModel.componentSize[i]
+        }
+
+private fun writeToTempFile(
+    image: BufferedImage,
+    extension: String,
+): Path {
+    val path = Files.createTempFile("snapshot-diff-", ".$extension")
+    ImageIO.write(image, extension, path.toFile())
+    return path
 }
