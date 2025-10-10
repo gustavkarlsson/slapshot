@@ -15,6 +15,7 @@ public fun interface DiffImageGenerator {
     ): BufferedImage
 
     // FIXME document
+    // FIXME test
     public data class Highlight(val color: Color = Color(255, 255, 0, 255)) : DiffImageGenerator {
         override fun generateDiffImage(
             actual: BufferedImage,
@@ -42,6 +43,7 @@ public fun interface DiffImageGenerator {
     }
 
     // FIXME document
+    // FIXME test
     public data object SideBySide : DiffImageGenerator {
         override fun generateDiffImage(
             actual: BufferedImage,
@@ -66,6 +68,7 @@ public fun interface DiffImageGenerator {
     }
 
     // FIXME document
+    // FIXME test
     public data object OnlyDiffs : DiffImageGenerator {
         private val transparent = Color(0x00808080)
 

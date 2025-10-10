@@ -18,6 +18,8 @@ public fun interface PixelComparator {
         expected: List<Float>,
     ): Double
 
+    // FIXME test
+
     /**
      * Calculates the difference between each component separately and returns an average.
      * This is suitable if you want small differences in color to have a small impact.
@@ -35,6 +37,8 @@ public fun interface PixelComparator {
             return deltas / actual.size
         }
     }
+
+    // FIXME test
 
     /**
      * Calculates the difference between two pixels in a strict "all or nothing" manner.

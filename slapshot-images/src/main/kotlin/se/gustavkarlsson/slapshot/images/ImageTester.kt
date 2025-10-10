@@ -9,6 +9,8 @@ import java.util.stream.IntStream
 import javax.imageio.ImageIO
 import kotlin.math.pow
 
+// FIXME test
+
 /**
  * Tests image snapshots. Compares pixel by pixel and accumulates the difference to a total value (0..1),
  * If the total difference is greater than [tolerance], it's considered a mismatch.
@@ -28,6 +30,7 @@ public data class ImageTester(
      */
     val diffImageGenerator: DiffImageGenerator? = null,
 ) : Tester<BufferedImage> {
+    // FIXME allow to configure where to save images, and format.
     init {
         require(tolerance in 0.0..1.0) {
             "tolerance must be 0..1: <$tolerance>"
@@ -42,13 +45,14 @@ public data class ImageTester(
         val diffMatrix = getDiffMatrix(actual, expected)
         val differance = diffMatrix.sequence().average()
         return if (differance > tolerance) {
+            val formattedDifference = "%.2f%%".format(differance * 100)
             if (diffImageGenerator != null) {
                 val diffImage = diffImageGenerator.generateDiffImage(actual, expected, diffMatrix)
                 // FIXME hard-code png?
                 val diffImagePath = writeToTempFile(diffImage, "png").toAbsolutePath()
-                "Images differ by $differance. Diff image written to: $diffImagePath"
+                "Images differ by $formattedDifference. Diff image written to: $diffImagePath"
             } else {
-                "Images differ by $differance"
+                "Images differ by $formattedDifference"
             }
         } else {
             null
