@@ -8,7 +8,6 @@ import se.gustavkarlsson.slapshot.images.setPixel
 import java.awt.image.BufferedImage
 import kotlin.math.abs
 
-// FIXME test
 internal data object DiffsOnlyDiffImageGenerator : DiffImageGenerator {
     override fun generateDiffImage(
         actual: BufferedImage,
