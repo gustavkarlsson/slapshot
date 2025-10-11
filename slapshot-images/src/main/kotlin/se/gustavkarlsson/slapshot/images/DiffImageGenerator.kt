@@ -16,7 +16,7 @@ public fun interface DiffImageGenerator {
     public companion object {
         // FIXME document
         @Suppress("FunctionName")
-        public fun Highlight(color: Color = Color(255, 255, 0, 255)): DiffImageGenerator {
+        public fun Highlight(color: Color = Color.Magenta): DiffImageGenerator {
             return HighlightDiffImageGenerator(color)
         }
 

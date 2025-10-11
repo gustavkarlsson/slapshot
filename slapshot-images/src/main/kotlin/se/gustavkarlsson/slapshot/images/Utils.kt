@@ -24,3 +24,18 @@ private val BufferedImage.properties: Hashtable<String, Any?>?
         }
         return newProperties
     }
+
+internal fun BufferedImage.getPixel(
+    x: Int,
+    y: Int,
+): Color {
+    return Color(getRGB(x, y))
+}
+
+internal fun BufferedImage.setPixel(
+    x: Int,
+    y: Int,
+    color: Color,
+) {
+    setRGB(x, y, color.packedValue)
+}

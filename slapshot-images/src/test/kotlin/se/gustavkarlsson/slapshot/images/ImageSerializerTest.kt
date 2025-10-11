@@ -2,13 +2,10 @@ package se.gustavkarlsson.slapshot.images
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import strikt.api.Assertion
 import strikt.api.expectThat
-import strikt.assertions.contentEquals
 import strikt.assertions.isEqualTo
 import strikt.assertions.isGreaterThan
 import strikt.assertions.isNotEqualTo
-import java.awt.Color
 import java.awt.Transparency
 import java.awt.color.ColorSpace
 import java.awt.image.BufferedImage
@@ -60,7 +57,7 @@ class ImageSerializerTest {
     @Test
     fun `serialize and deserialize preserves image data`() {
         val serializer = ImageSerializer()
-        val originalImage = createImage().draw()
+        val originalImage = createImage()
 
         val bytes = serializer.serialize(originalImage)
         val deserializedImage = serializer.deserialize(bytes)
@@ -77,14 +74,14 @@ class ImageSerializerTest {
     fun `serialize and deserialize preserves transparent pixels`() {
         val serializer = ImageSerializer(fileFormat = "png")
         val sourceAlpha = 128
-        val originalImage = createImage(type = BufferedImage.TYPE_INT_ARGB).draw(Color(64, 32, 16, sourceAlpha))
+        val originalImage = createImage(type = BufferedImage.TYPE_INT_ARGB, fillColor = Color(sourceAlpha, 64, 32, 16))
 
         val bytes = serializer.serialize(originalImage)
         val deserializedImage = serializer.deserialize(bytes)
 
         expectThat(deserializedImage) {
             get("transparency") { transparency }.isEqualTo(Transparency.TRANSLUCENT)
-            get("first pixel") { firstPixelColor() }.get("alpha") { alpha }.isEqualTo(sourceAlpha)
+            get("first pixel") { pixels().first() }.get("alpha") { alpha }.isEqualTo(sourceAlpha)
             hasSamePixelsAs(originalImage)
         }
     }
@@ -98,7 +95,7 @@ class ImageSerializerTest {
 
         val originalImage =
             BufferedImage(colorModel, raster, colorModel.isAlphaPremultiplied(), null)
-                .draw(Color(64, 32, 16, 254)) // Every alpha < 255 becomes 0 in BITMASK
+                .fill(Color(254, 64, 32, 16)) // Every alpha < 255 becomes 0 in BITMASK
         val serializer = ImageSerializer(fileFormat = "gif")
 
         val bytes = serializer.serialize(originalImage)
@@ -106,7 +103,7 @@ class ImageSerializerTest {
 
         expectThat(deserializedImage) {
             get("transparency") { transparency }.isEqualTo(Transparency.BITMASK)
-            get("first pixel") { firstPixelColor() }.get("alpha") { alpha }.isEqualTo(0)
+            get("first pixel") { pixels().first() }.get("alpha") { alpha }.isEqualTo(0)
         }
     }
 
@@ -123,8 +120,8 @@ class ImageSerializerTest {
     @Test
     fun `serialize produces different bytes for different images`() {
         val serializer = ImageSerializer()
-        val redImage = createImage().draw(Color.RED)
-        val blueImage = createImage().draw(Color.BLUE)
+        val redImage = createImage(fillColor = Color.Red)
+        val blueImage = createImage(fillColor = Color.Blue)
 
         val redBytes = serializer.serialize(redImage)
         val blueBytes = serializer.serialize(blueImage)
@@ -142,32 +139,3 @@ class ImageSerializerTest {
         }
     }
 }
-
-private fun createImage(
-    width: Int = 20,
-    height: Int = 10,
-    type: Int = BufferedImage.TYPE_INT_RGB,
-): BufferedImage {
-    return BufferedImage(width, height, type)
-}
-
-private fun BufferedImage.draw(color: Color = Color.RED): BufferedImage {
-    val graphics = createGraphics()
-    try {
-        graphics.color = color
-        graphics.fillRect(0, 0, width, height)
-    } finally {
-        graphics.dispose()
-    }
-    return this
-}
-
-private fun Assertion.Builder<BufferedImage>.hasSamePixelsAs(other: BufferedImage): Assertion.Builder<BufferedImage> {
-    return and {
-        get("pixels") { pixels() }.contentEquals(other.pixels())
-    }
-}
-
-private fun BufferedImage.pixels(): IntArray = getRGB(0, 0, width, height, null, 0, width)
-
-private fun BufferedImage.firstPixelColor(): Color = Color(getRGB(0, 0), transparency != BufferedImage.OPAQUE)

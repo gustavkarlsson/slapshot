@@ -4,6 +4,8 @@ import se.gustavkarlsson.slapshot.images.Color
 import se.gustavkarlsson.slapshot.images.DiffImageGenerator
 import se.gustavkarlsson.slapshot.images.DiffMatrix
 import se.gustavkarlsson.slapshot.images.copy
+import se.gustavkarlsson.slapshot.images.getPixel
+import se.gustavkarlsson.slapshot.images.setPixel
 import java.awt.Transparency
 import java.awt.image.BufferedImage
 
@@ -19,10 +21,9 @@ internal data class HighlightDiffImageGenerator(val color: Color) : DiffImageGen
             for (x in 0 until actual.width) {
                 when (val difference = diffMatrix[x, y]) {
                     0.0 -> continue // No difference, leave pixel as is
-                    1.0 -> diffImage.setRGB(x, y, color.packedValue) // Full difference, set to highlight color
+                    1.0 -> diffImage.setPixel(x, y, color) // Full difference, set to highlight color
                     else -> {
-                        // Blend the original color with the highlight color based on the difference, and draw that
-                        val originalColor = Color(diffImage.getRGB(x, y))
+                        val originalColor = diffImage.getPixel(x, y)
                         val newAlpha =
                             if (diffImage.transparency == Transparency.TRANSLUCENT) {
                                 color.alphaDouble * difference
@@ -30,8 +31,9 @@ internal data class HighlightDiffImageGenerator(val color: Color) : DiffImageGen
                                 1.0
                             }
                         val blendColor = color.copy(alpha = newAlpha)
+                        // Blend the original color with the highlight color based on the difference, and draw that
                         val newColor = originalColor.blendWith(blendColor, difference)
-                        diffImage.setRGB(x, y, newColor.packedValue)
+                        diffImage.setPixel(x, y, newColor)
                     }
                 }
             }

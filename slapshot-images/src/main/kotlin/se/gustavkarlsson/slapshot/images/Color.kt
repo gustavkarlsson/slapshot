@@ -35,6 +35,16 @@ public value class Color(public val packedValue: Int) {
         blue = (requireInRatioRange(blue, "blue") * 255).toInt(),
     )
 
+    /**
+     * Creates a new color from byte values (0-255).
+     */
+    public constructor(red: Int, green: Int, blue: Int) : this(255, red, green, blue)
+
+    /**
+     * Creates a new color from ratio values (0.0-1.0).
+     */
+    public constructor(red: Double, green: Double, blue: Double) : this(1.0, red, green, blue)
+
     public fun copy(
         alpha: Int = this.alpha,
         red: Int = this.red,
@@ -50,6 +60,18 @@ public value class Color(public val packedValue: Int) {
     ): Color = Color(alpha, red, green, blue)
 
     override fun toString(): String = "Color($alpha, $red, $green, $blue)"
+
+    public companion object {
+        public val Transparent: Color = Color(0, 255, 255, 255)
+        public val Black: Color = Color(0, 0, 0)
+        public val White: Color = Color(255, 255, 255)
+        public val Red: Color = Color(255, 0, 0)
+        public val Green: Color = Color(0, 255, 0)
+        public val Blue: Color = Color(0, 0, 255)
+        public val Magenta: Color = Color(255, 0, 255)
+        public val Yellow: Color = Color(255, 255, 0)
+        public val Cyan: Color = Color(0, 255, 255)
+    }
 }
 
 private fun requireInByteRange(
