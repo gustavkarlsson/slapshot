@@ -17,7 +17,7 @@ internal fun Assertion.Builder<BufferedImage>.hasSamePixelsAs(other: BufferedIma
 internal fun createImage(
     width: Int = 30,
     height: Int = 20,
-    type: Int = BufferedImage.TYPE_INT_RGB,
+    type: Int = BufferedImage.TYPE_INT_ARGB,
     fillColor: Color = Color.Red,
 ): BufferedImage {
     return BufferedImage(width, height, type).fill(fillColor)

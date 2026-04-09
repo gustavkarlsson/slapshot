@@ -59,7 +59,7 @@ public value class Color(public val packedValue: Int) {
         blue: Double = this.blueDouble,
     ): Color = Color(alpha, red, green, blue)
 
-    override fun toString(): String = "Color($alpha, $red, $green, $blue)"
+    override fun toString(): String = "Color(alpha=$alpha, red=$red, green=$green, blue=$blue)"
 
     public companion object {
         public val Transparent: Color = Color(0, 255, 255, 255)
